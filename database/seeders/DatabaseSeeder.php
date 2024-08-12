@@ -3,6 +3,11 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\Expense;
+use App\Models\ExpenseCategory;
+use App\Models\Project;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -18,5 +23,10 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+
+        ExpenseCategory::factory()->count(2)->create();
+        Project::factory()->create();
+        Expense::factory(5)->create();
+        User::factory()->count(2)->create();
     }
 }

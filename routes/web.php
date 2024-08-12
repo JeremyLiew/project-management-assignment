@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\TaskController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// can be edited to start the application with your page - Jeremy
+Route::get('/', [TaskController::class, 'index'])->name('tasks.index');
+
+Route::resource('tasks', TaskController::class);
+
