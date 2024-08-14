@@ -58,7 +58,7 @@
                 <!-- Task Project -->
                 <div class="form-group mb-3">
                     <label for="project_id">Project</label>
-                    <select id="project_id" name="project_id" class="form-control" required>
+                    <select disabled id="project_id" name="project_id" class="form-control" required>
                         @foreach($projects as $project)
                             <option value="{{ $project->id }}" {{ old('project_id', $task->project_id) == $project->id ? 'selected' : '' }}>{{ $project->name }}</option>
                         @endforeach
@@ -66,6 +66,15 @@
                     @error('project_id')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select name="priority" id="priority" class="form-control">
+                        <option value="low" {{ old('priority', $task->priority ?? 'low') == 'low' ? 'selected' : '' }}>Low</option>
+                        <option value="medium" {{ old('priority', $task->priority ?? 'low') == 'medium' ? 'selected' : '' }}>Medium</option>
+                        <option value="high" {{ old('priority', $task->priority ?? 'low') == 'high' ? 'selected' : '' }}>High</option>
+                    </select>
                 </div>
 
                 <!-- Task Expense -->

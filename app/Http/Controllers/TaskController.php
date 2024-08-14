@@ -6,6 +6,7 @@ use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Mail\TaskAssigned;
 use App\Models\Expense;
+use App\Models\LoggingTaskDecorator;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
@@ -42,6 +43,10 @@ class TaskController extends Controller
             'expense_id' => $result['expense_id'],
         ]);
 
+        // apply decorator
+        $decoratedTask = new LoggingTaskDecorator($task);
+        $decoratedTask->getName();
+
         return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
     }
 
@@ -66,7 +71,7 @@ class TaskController extends Controller
             'description' => $result['description'],
             'status' => $result['status'],
             'user_id' => $result['user_id'],
-            'project_id' => $result['project_id'],
+            'priority' => $result['priority'],
             'expense_id' => $result['expense_id'],
         ]);
 

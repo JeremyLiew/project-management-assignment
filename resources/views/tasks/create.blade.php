@@ -25,6 +25,15 @@
     </div>
 
     <div class="form-group">
+        <label for="priority">Priority</label>
+        <select name="priority" id="priority" class="form-control">
+            <option value="low" {{ old('priority', $task->priority ?? 'low') == 'low' ? 'selected' : '' }}>Low</option>
+            <option value="medium" {{ old('priority', $task->priority ?? 'low') == 'medium' ? 'selected' : '' }}>Medium</option>
+            <option value="high" {{ old('priority', $task->priority ?? 'low') == 'high' ? 'selected' : '' }}>High</option>
+        </select>
+    </div>
+
+    <div class="form-group">
         <label for="project_id">Select Project</label>
         <select name="project_id" id="project_id" class="form-control" required>
             @foreach($projects as $project)
