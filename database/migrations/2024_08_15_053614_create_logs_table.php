@@ -19,6 +19,11 @@ class CreateLogsTable extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->text('changes')->nullable();
             $table->timestamps();
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('set null');
         });
     }
 

@@ -9,8 +9,7 @@ class LogController extends Controller
 {
     public function index()
     {
-        $tasks = Log::all();
-
+        $logs = Log::with('user')->latest()->get();
         return view('logs.index', compact('logs'));
     }
 }

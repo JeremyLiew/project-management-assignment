@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Decorators\ProjectLogDecorator;
 use App\Models\Budget;
 use App\Models\Project;
 use App\Models\User;
@@ -43,6 +44,13 @@ class ProjectController extends Controller
         foreach ($membersWithRoles as $memberId => $role) {
             $project->users()->attach($memberId, ['role' => $role]);
         }
+
+        $projectLogger = new ProjectLogDecorator($project);
+        $projectLogger->logAction('Created', [
+            'name' => $project->name,
+            'description' => $project->description,
+            'budget_id' => $project->budget_id
+        ]);
 
         return redirect()->route('projects.index')->with('success', 'Project created successfully with a budget.');
     }
@@ -93,12 +101,26 @@ class ProjectController extends Controller
             $project->users()->attach($memberId, ['role' => $role]);
         }
 
+        $projectLogger = new ProjectLogDecorator($project);
+        $projectLogger->logAction('Updated', [
+            'name' => $project->name,
+            'description' => $project->description,
+            'budget_id' => $project->budget_id
+        ]);
+
         return redirect()->route('projects.index')->with('success', 'Project updated successfully with a budget.');
     }
 
     public function destroy(Project $project)
     {
         $project->delete();
+
+        $projectLogger = new ProjectLogDecorator($project);
+        $projectLogger->logAction('Deleted', [
+            'name' => $project->name,
+            'description' => $project->description,
+            'budget_id' => $project->budget_id
+        ]);
 
         return redirect()->route('projects.index')
                          ->with('success', 'Project deleted successfully.');

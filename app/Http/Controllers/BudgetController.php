@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Decorators\BudgetLogDecorator;
 use App\Models\Budget;
 use Illuminate\Http\Request;
 
@@ -24,8 +25,13 @@ class BudgetController extends Controller
             'total_amount' => 'required|numeric|min:0',
         ]);
 
-        Budget::create([
+        $budget = Budget::create([
             'total_amount' => $request->total_amount,
+        ]);
+
+        $budgetLogger = new BudgetLogDecorator($budget);
+        $budgetLogger->logAction('Created', [
+            'total_amount' => $budget->total_amount,
         ]);
 
         return redirect()->route('budgets.index')->with('success', 'Budget created successfully.');
@@ -45,6 +51,11 @@ class BudgetController extends Controller
         $budget->total_amount = $request->total_amount;
         $budget->save();
 
+        $budgetLogger = new BudgetLogDecorator($budget);
+        $budgetLogger->logAction('Updated', [
+            'total_amount' => $budget->total_amount,
+        ]);
+
         return redirect()->route('budgets.index')->with('success', 'Budget updated successfully.');
     }
 
@@ -55,6 +66,11 @@ class BudgetController extends Controller
         }
 
         $budget->delete();
+
+        $budgetLogger = new BudgetLogDecorator($budget);
+        $budgetLogger->logAction('Deleted', [
+            'total_amount' => $budget->total_amount,
+        ]);
         return redirect()->route('budgets.index')->with('success', 'Budget deleted successfully.');
     }
 

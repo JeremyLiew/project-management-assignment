@@ -27,7 +27,8 @@ Route::resource('projects', ProjectController::class);
 
 Route::resource('budgets', BudgetController::class);
 
-Route::resource('logs', LogController::class)->middleware('role:Project Manager');
+// Route::resource('logs', LogController::class)->middleware('role:Project Manager');
+Route::resource('logs', LogController::class);
 
 
 
