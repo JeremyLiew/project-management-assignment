@@ -4,8 +4,6 @@ namespace App\Models;
 
 interface TaskInterface
 {
-    public function getName();
-    public function getDescription();
-    public function getStatus();
-    public function getPriority();
+    public function createTask(array $data);
+    public function updateTask(Task $task, array $data);
 }

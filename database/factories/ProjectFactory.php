@@ -14,13 +14,11 @@ class ProjectFactory extends Factory
     public function definition(): array
     {
 
-        $budget = Budget::factory()->create();
-
+        $budget = Budget::inRandomOrder()->first();
         return [
             'name' => 'Default Project Name',
             'description' => fake()->sentence(),
             'budget_id' => $budget->id,
-            // Add other necessary fields with default values if required
         ];
     }
 }

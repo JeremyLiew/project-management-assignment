@@ -6,15 +6,25 @@ use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Mail\TaskAssigned;
 use App\Models\Expense;
+use App\Models\LoggingDecorator;
 use App\Models\LoggingTaskDecorator;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\TaskService;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class TaskController extends Controller
 {
+
+    protected $taskService;
+
+    public function __construct(TaskService $taskService)
+    {
+        $this->taskService = new LoggingDecorator($taskService);
+    }
+
     public function index()
     {
         $tasks = Task::all();
@@ -33,20 +43,7 @@ class TaskController extends Controller
 
     public function store(StoreTaskRequest $request)
     {
-        $result = $request->validated();
-
-        $task = Task::create([
-            'name' => $result['name'],
-            'description' => $result['description'],
-            'user_id' => $result['user_id'],
-            'project_id' => $result['project_id'],
-            'expense_id' => $result['expense_id'],
-        ]);
-
-        // apply decorator
-        $decoratedTask = new LoggingTaskDecorator($task);
-        $decoratedTask->getName();
-
+        $this->taskService->createTask($request->validated());
         return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
     }
 
@@ -62,18 +59,8 @@ class TaskController extends Controller
 
     public function update(UpdateTaskRequest $request, $id)
     {
-        $result = $request->validated();
-
         $task = Task::findOrFail($id);
-        $originalUserId = $task->user_id;
-        $task->update([
-            'name' => $result['name'],
-            'description' => $result['description'],
-            'status' => $result['status'],
-            'user_id' => $result['user_id'],
-            'priority' => $result['priority'],
-            'expense_id' => $result['expense_id'],
-        ]);
+        $this->taskService->updateTask($task, $request->validated());
 
         return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
     }

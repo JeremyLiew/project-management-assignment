@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LogController;
+use App\Http\Controllers\ProjectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
 /*
@@ -14,7 +18,16 @@ use App\Http\Controllers\TaskController;
 */
 
 // can be edited to start the application with your page - Jeremy
-Route::get('/', [TaskController::class, 'index'])->name('tasks.index');
+Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+// Resource routes for tasks and projects
 Route::resource('tasks', TaskController::class);
+
+Route::resource('projects', ProjectController::class);
+
+Route::resource('budgets', BudgetController::class);
+
+Route::resource('logs', LogController::class)->middleware('role:Project Manager');
+
+
 

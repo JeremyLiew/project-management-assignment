@@ -42,6 +42,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function hasRole($role, $projectId)
+    {
+        return $this->projects()
+            ->where('project_id', $projectId)
+            ->wherePivot('role', $role)
+            ->exists();
+    }
+
     public function projects()
     {
         return $this->belongsToMany(Project::class, 'project_user_mappings');

@@ -12,7 +12,6 @@ class BudgetFactory extends Factory
     {
         return [
             'total_amount' => fake()->randomFloat(2, 5000, 50000),
-            // 'project_id' => \App\Models\Project::factory(), // Automatically create a related project
         ];
     }
 }

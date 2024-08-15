@@ -13,12 +13,12 @@ class Project extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'project_user_mappings');
+        return $this->belongsToMany(User::class, 'project_user_mappings')->withPivot('role')->withTimestamps();
     }
 
     public function budget()
     {
-        return $this->hasOne(Budget::class);
+        return $this->belongsTo(Budget::class, 'budget_id');
     }
 
     public function tasks()

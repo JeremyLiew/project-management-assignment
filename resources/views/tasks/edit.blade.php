@@ -4,8 +4,10 @@
 <div class="container mt-5">
     <h1>Edit Task</h1>
 
-    <!-- Edit Task Form -->
     <div class="card mt-4">
+        <div class="card-header">
+            <h3 class="card-title">Task Details</h3>
+        </div>
         <div class="card-body">
             <form action="{{ route('tasks.update', $task->id) }}" method="POST">
                 @csrf
@@ -42,7 +44,7 @@
                     @enderror
                 </div>
 
-                <!-- Task User -->
+                <!-- Assign User -->
                 <div class="form-group mb-3">
                     <label for="user_id">Assign User</label>
                     <select id="user_id" name="user_id" class="form-control" required>
@@ -55,10 +57,10 @@
                     @enderror
                 </div>
 
-                <!-- Task Project -->
+                <!-- Select Project -->
                 <div class="form-group mb-3">
                     <label for="project_id">Project</label>
-                    <select disabled id="project_id" name="project_id" class="form-control" required>
+                    <select id="project_id" name="project_id" class="form-control" disabled>
                         @foreach($projects as $project)
                             <option value="{{ $project->id }}" {{ old('project_id', $task->project_id) == $project->id ? 'selected' : '' }}>{{ $project->name }}</option>
                         @endforeach
@@ -68,7 +70,8 @@
                     @enderror
                 </div>
 
-                <div class="form-group">
+                <!-- Priority -->
+                <div class="form-group mb-3">
                     <label for="priority">Priority</label>
                     <select name="priority" id="priority" class="form-control">
                         <option value="low" {{ old('priority', $task->priority ?? 'low') == 'low' ? 'selected' : '' }}>Low</option>
@@ -77,9 +80,9 @@
                     </select>
                 </div>
 
-                <!-- Task Expense -->
+                <!-- Related Expense -->
                 <div class="form-group mb-3">
-                    <label for="expense_id">Expense</label>
+                    <label for="expense_id">Related Expense</label>
                     <select id="expense_id" name="expense_id" class="form-control">
                         <option value="">None</option>
                         @foreach($expenses as $expense)

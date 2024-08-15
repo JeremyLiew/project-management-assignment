@@ -9,15 +9,10 @@ class Budget extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['amount', 'project_id'];
+    protected $fillable = ['total_amount'];
 
-    public function project()
+    public function projects()
     {
-        return $this->belongsTo(Project::class);
-    }
-
-    public function expenses()
-    {
-        return $this->hasMany(Expense::class);
+        return $this->hasOne(Project::class);
     }
 }
