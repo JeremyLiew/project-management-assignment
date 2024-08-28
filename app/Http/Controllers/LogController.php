@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Log;
 use DOMDocument;
+use DOMNode;
+use DOMXPath;
 use Illuminate\Http\Request;
 use XSLTProcessor;
 
 class LogController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $logs = Log::with('user')->latest()->get();
 
@@ -32,13 +34,52 @@ class LogController extends Controller
 
         $xml->appendChild($logsElement);
 
-        $xsl = new DOMDocument;
+        $xpath = new DOMXPath($xml);
+        $query = "//log";
+
+        if ($request->filled('user')) {
+            $userFilter = $request->input('user');
+            $query .= "[contains(translate(user, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), translate('$userFilter', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'))]";
+        }
+
+        if ($request->filled('created_at')) {
+            $createdAtFilter = $request->input('created_at');
+            $query .= "[substring(created_at, 1, 10) = '$createdAtFilter']";
+        }
+
+        if ($request->filled('action')) {
+            $actionFilter = $request->input('action');
+            $query .= "[translate(action, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') = translate('$actionFilter', 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')]";
+        }
+
+
+        $filteredLogs = $xpath->query($query);
+
+        $filteredXml = new DOMDocument('1.0', 'UTF-8');
+        $filteredLogsElement = $filteredXml->createElement('logs');
+
+        foreach ($filteredLogs as $node) {
+            $importedNode = $filteredXml->importNode($node, true);
+            $filteredLogsElement->appendChild($importedNode);
+        }
+
+        $filteredXml->appendChild($filteredLogsElement);
+
+        $xsl = new DOMDocument();
         $xsl->load(storage_path('app/public/logs.xsl'));
 
         $processor = new XSLTProcessor();
         $processor->importStylesheet($xsl);
 
-        $htmlOutput = $processor->transformToXml($xml);
+        $actionToCount = $request->input('action', 'created');
+
+        if($actionToCount == ''){
+            $actionToCount = 'created';
+        }
+
+        $processor->setParameter('', 'actionToCount', $actionToCount);
+
+        $htmlOutput = $processor->transformToXml($filteredXml);
 
         return view('logs.index', compact('logs', 'htmlOutput'));
     }
