@@ -6,6 +6,8 @@ use App\Http\Controllers\LogController;
 use App\Http\Controllers\ProjectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\AboutUsController;
+use Illuminate\Support\Facades\Http;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -17,7 +19,6 @@ use App\Http\Controllers\TaskController;
 |
 */
 
-// can be edited to start the application with your page - Jeremy
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
 // Resource routes for tasks and projects
@@ -30,5 +31,6 @@ Route::resource('budgets', BudgetController::class);
 // Route::resource('logs', LogController::class)->middleware('role:Project Manager');
 Route::resource('logs', LogController::class);
 
+Route::get('about-us', [AboutUsController::class,'index'])->name('about-us');
 
-
+Route::post('/about-us/members', [AboutUsController::class,'getMembersViaWebService'])->name('about-us-post');
