@@ -6,13 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateTaskRequest extends FormRequest
 {
-
-    /**
-    * Get the validation rules that apply to the request.
-    *
-    * @return array
-    */
-    public function rules(): array
+    public function rules()
     {
         return [
             'name' => ['required', 'string', 'max:255'],
@@ -21,6 +15,14 @@ class UpdateTaskRequest extends FormRequest
             'status' => ['required', 'string'],
             'user_id' => ['required', 'exists:users,id'],
             'expense_id' => ['nullable', 'exists:expenses,id'],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'project_id.exists' => 'The selected project does not exist.',
+            'user_id.exists' => 'The selected user does not exist.',
         ];
     }
 }

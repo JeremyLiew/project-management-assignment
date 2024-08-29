@@ -96,4 +96,3 @@
     }
 </style>
 @endsection
-@endsection

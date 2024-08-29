@@ -2,36 +2,36 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AboutUs\GetMembersRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
 class AboutUsController extends Controller
 {
+    private $apiUrl = 'http://127.0.0.1:8080/ProjManagementApi/api.php';
+
     public function index()
     {
-        $response = Http::get('http://127.0.0.1:8080/ProjManagementApi/api.php');
+        $response = $this->fetchApiData();
 
         if ($response->successful()) {
             $result = $response->json();
 
             if ($result['status'] == 200) {
-                $members = $result['data']['members'];
-                $aboutUsContent = $result['data']['about_us'];
-
-                return view('aboutus.index', ['members' => $members, 'aboutUsContent' => $aboutUsContent]);
+                return $this->renderView($result['data']);
             } else {
-                return view('aboutus.index', ['error' => $result['status_message']]);
+                return $this->renderErrorView($result['status_message']);
             }
         } else {
-            return view('aboutus.index', ['error' => 'Failed to fetch data from API.']);
+            return $this->renderErrorView('Failed to fetch data from API.');
         }
     }
 
-    public function getMembersViaWebService(Request $request)
+    public function getMembersViaWebService(GetMembersRequest $request)
     {
-        $query = strtolower($request->input('query', ''));
-
-        $response = Http::get('http://127.0.0.1:8080/ProjManagementApi/api.php');
+        $validator = $request->validated();
+        $query = strtolower($validator['query']);
+        $response = $this->fetchApiData();
 
         if ($response->successful()) {
             $result = $response->json();
@@ -40,25 +40,51 @@ class AboutUsController extends Controller
                 $members = $result['data']['members'];
                 $aboutUsContent = $result['data']['about_us'];
 
-                if ($query) {
-                    $filteredMembers = array_filter($members, function ($member) use ($query) {
-                        $nameMatch = stripos(strtolower($member['name']), $query) !== false;
-                        $skillsMatch = array_filter(array_map('strtolower', $member['skills']), function ($skill) use ($query) {
-                            return stripos($skill, $query) !== false;
-                        });
+                $filteredMembers = $this->filterMembers($members, $query);
 
-                        return $nameMatch || !empty($skillsMatch);
-                    });
-                } else {
-                    $filteredMembers = $members;
-                }
-
-                return view('aboutus.index', ['members' => $filteredMembers, 'aboutUsContent' => $aboutUsContent]);
+                return view('aboutus.index', [
+                    'members' => $filteredMembers,
+                    'aboutUsContent' => $aboutUsContent
+                ]);
             } else {
-                return view('aboutus.index', ['error' => $result['status_message']]);
+                return $this->renderErrorView($result['status_message']);
             }
         } else {
-            return view('aboutus.index', ['error' => 'Failed to fetch data from API.']);
+            return $this->renderErrorView('Failed to fetch data from API.');
         }
+    }
+
+    private function fetchApiData()
+    {
+        return Http::get($this->apiUrl);
+    }
+
+    private function renderView($data)
+    {
+        return view('aboutus.index', [
+            'members' => $data['members'],
+            'aboutUsContent' => $data['about_us']
+        ]);
+    }
+
+    private function renderErrorView($errorMessage)
+    {
+        return view('aboutus.index', ['error' => $errorMessage]);
+    }
+
+    private function filterMembers($members, $query)
+    {
+        if ($query) {
+            return array_filter($members, function ($member) use ($query) {
+                $nameMatch = stripos(strtolower($member['name']), $query) !== false;
+                $skillsMatch = array_filter(array_map('strtolower', $member['skills']), function ($skill) use ($query) {
+                    return stripos($skill, $query) !== false;
+                });
+
+                return $nameMatch || !empty($skillsMatch);
+            });
+        }
+
+        return $members;
     }
 }
