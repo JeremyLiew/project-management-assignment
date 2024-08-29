@@ -2,25 +2,98 @@
 
 @section('content')
 <div class="container">
-    <h2>Team Member Information</h2>
-    <form class="form-inline" method="POST" action="{{ route('about-us-post') }}">
+    <!-- Company About Us Section -->
+    <div class="company-about mb-5">
+        <h2 class="display-4 text-center">About Us</h2>
+        @if(isset($aboutUsContent))
+            <div class="about-us-content mt-4">
+                <h3 class="display-5">Our Story</h3>
+                <p>{{ $aboutUsContent['company_story'] }}</p>
+
+                <h3 class="display-5 mt-4">Mission</h3>
+                <p>{{ $aboutUsContent['mission'] }}</p>
+
+                <h3 class="display-5 mt-4">Vision</h3>
+                <p>{{ $aboutUsContent['vision'] }}</p>
+
+                <h3 class="display-5 mt-4">Values</h3>
+                <p>{{ $aboutUsContent['values'] }}</p>
+            </div>
+        @else
+            <p>No company information available.</p>
+        @endif
+    </div>
+
+    <hr class="my-4">
+
+    <!-- Team Member Search Form -->
+    <h2 class="display-4 text-center">Team Member Information</h2>
+
+    <form class="form-inline justify-content-center mb-4" method="POST" action="{{ route('about-us-post') }}">
         @csrf
-        <div class="form-group">
-            <label for="id">Member ID</label>
-            <input type="text" name="id" class="form-control" placeholder="Enter Member ID" required>
+        <div class="form-group mx-sm-3">
+            <input type="text" name="query" class="form-control form-control-lg" placeholder="Search by name or skill" value="{{ old('query') }}">
         </div>
-        <button type="submit" class="btn btn-default">Submit</button>
+        <button type="submit" class="btn btn-primary btn-lg">Search</button>
     </form>
-    <p>&nbsp;</p>
+
+    <!-- Team Members Display -->
     <div id="member-info">
-        @if(isset($member))
-            <h3>{{ $member['name'] }}</h3>
-            <p><strong>Role:</strong> {{ $member['role'] }}</p>
-            <p><strong>Email:</strong> {{ $member['email'] }}</p>
-            <img src="{{ asset('images/' . $member['image']) }}" alt="{{ $member['name'] }}" style="width:150px;height:auto;">
+        @if(isset($members) && count($members) > 0)
+            <div class="row">
+                @foreach($members as $member)
+                    <div class="col-md-4 mb-4">
+                        <div class="member-card card shadow-sm">
+                            <img src="{{ $member['image'] }}" alt="{{ $member['name'] }}" class="card-img-top member-image">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ $member['name'] }}</h5>
+                                <p class="card-text"><strong>Role:</strong> {{ $member['role'] }}</p>
+                                <p class="card-text"><strong>Email:</strong> {{ $member['email'] }}</p>
+                                <p class="card-text"><strong>Skills:</strong> {{ implode(', ', $member['skills']) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
         @elseif(isset($error))
-            <p>{{ $error }}</p>
+            <p class="text-danger">{{ $error }}</p>
+        @else
+            <p class="text-muted">No members available.</p>
         @endif
     </div>
 </div>
+
+@section('styles')
+<style>
+    .company-about {
+        background-color: #f8f9fa;
+        padding: 40px;
+        border-radius: 8px;
+    }
+
+    .about-us-content h3 {
+        color: #343a40;
+    }
+
+    .member-card {
+        border: none;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .member-image {
+        border-radius: 0;
+        max-height: 200px;
+        object-fit: cover;
+    }
+
+    .card-body {
+        text-align: center;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+    }
+</style>
+@endsection
 @endsection
