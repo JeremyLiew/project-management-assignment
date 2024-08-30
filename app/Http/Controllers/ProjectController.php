@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Decorators\ProjectLogDecorator;
+use App\Http\Requests\Project\StoreProjectRequest;
+use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Budget;
 use App\Models\Project;
 use App\Models\User;
@@ -17,18 +19,9 @@ class ProjectController extends Controller
         return view('projects.index', compact('projects'));
     }
 
-    public function store(Request $request)
+    public function store(StoreProjectRequest $request)
     {
-        // Validate request
-        $validator = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'budget_id' => 'required|exists:budgets,id',
-            'members' => 'required|array',
-            'members.*' => 'exists:users,id',
-            'roles' => 'required|array',
-            'roles.*' => 'in:Junior,Senior,Project Manager',
-        ]);
+        $validator = $request->validated();
 
         if (count($request->input('members')) !== count(array_unique($request->input('members')))) {
             return redirect()->back()->withErrors(['members' => 'Duplicate members are not allowed.'])->withInput();
@@ -70,17 +63,9 @@ class ProjectController extends Controller
         return view('projects.edit', compact('project', 'budgets','users', 'assignedUsers'));
     }
 
-    public function update(Request $request, $id)
+    public function update(UpdateProjectRequest $request, $id)
     {
-        $validator = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'budget_id' => 'required|exists:budgets,id',
-            'members' => 'required|array',
-            'members.*' => 'exists:users,id',
-            'roles' => 'required|array',
-            'roles.*' => 'in:Junior,Senior,Project Manager',
-        ]);
+        $validator = $request->validated();
 
         if (count($request->input('members')) !== count(array_unique($request->input('members')))) {
             return redirect()->back()->withErrors(['members' => 'Duplicate members are not allowed.'])->withInput();

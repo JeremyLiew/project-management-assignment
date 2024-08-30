@@ -66,7 +66,7 @@ class TaskController extends Controller
         $task->update($request->validated());
 
         $taskLogger = new TaskLogDecorator($task);
-        $taskLogger->logAction('Created', [
+        $taskLogger->logAction('Updated', [
             'name' => $task->name,
             'description' => $task->description,
             'project_id' => $task->project_id,
