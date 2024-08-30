@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 class AboutUsController extends Controller
 {
-    private $apiUrl = 'http://localhost:8081/api';
+    private $apiUrl = 'http://localhost:8082/api/members';
 
     public function index()
     {

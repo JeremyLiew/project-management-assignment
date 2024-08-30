@@ -66,14 +66,14 @@ class LogController extends Controller
         $filteredXml->appendChild($filteredLogsElement);
 
         $xsl = new DOMDocument();
-        $xsl->load(storage_path('app/public/logs.xsl'));
+        $xsl->load(public_path('xslt/logs.xsl'));
 
         $processor = new XSLTProcessor();
         $processor->importStylesheet($xsl);
 
         $actionToCount = $request->input('action', 'created');
 
-        if($actionToCount == ''){
+        if($actionToCount == '') {
             $actionToCount = 'created';
         }
 
