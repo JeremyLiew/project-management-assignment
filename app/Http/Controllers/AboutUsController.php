@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 class AboutUsController extends Controller
 {
-    private $apiUrl = 'http://127.0.0.1:8080/ProjManagementApi/api.php';
+    private $apiUrl = 'http://localhost:8081/api';
 
     public function index()
     {

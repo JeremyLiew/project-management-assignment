@@ -2,7 +2,6 @@
 
 @section('content')
 <div class="container">
-    <!-- Company About Us Section -->
     <div class="company-about mb-5">
         <h2 class="display-4 text-center">About Us</h2>
         @if(isset($aboutUsContent))
@@ -26,7 +25,6 @@
 
     <hr class="my-4">
 
-    <!-- Team Member Search Form -->
     <h2 class="display-4 text-center">Team Member Information</h2>
 
     <form class="form-inline justify-content-center mb-4" method="POST" action="{{ route('about-us-post') }}">
@@ -37,7 +35,6 @@
         <button type="submit" class="btn btn-primary btn-lg">Search</button>
     </form>
 
-    <!-- Team Members Display -->
     <div id="member-info">
         @if(isset($members) && count($members) > 0)
             <div class="row">
@@ -62,37 +59,4 @@
         @endif
     </div>
 </div>
-
-@section('styles')
-<style>
-    .company-about {
-        background-color: #f8f9fa;
-        padding: 40px;
-        border-radius: 8px;
-    }
-
-    .about-us-content h3 {
-        color: #343a40;
-    }
-
-    .member-card {
-        border: none;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-
-    .member-image {
-        border-radius: 0;
-        max-height: 200px;
-        object-fit: cover;
-    }
-
-    .card-body {
-        text-align: center;
-    }
-
-    .card-title {
-        font-size: 1.25rem;
-    }
-</style>
 @endsection
