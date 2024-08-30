@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\AboutUsController;
 use Illuminate\Support\Facades\Http;
+use App\Http\Controllers\UserController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -34,3 +35,5 @@ Route::resource('logs', LogController::class);
 Route::get('about-us', [AboutUsController::class,'index'])->name('about-us');
 
 Route::post('/about-us/members', [AboutUsController::class,'getMembersViaWebService'])->name('about-us-post');
+
+Route::get('/create-users', [UserController::class, 'createUsers']);
