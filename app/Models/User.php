@@ -8,9 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
-{
-    use HasApiTokens, HasFactory, Notifiable;
+class User extends Authenticatable {
+
+    use HasApiTokens,
+        HasFactory,
+        Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -21,7 +23,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone', 5
     ];
+
+    public function getRole() {
+        return 'User';
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -42,26 +49,22 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function hasRole($role, $projectId)
-    {
+    public function hasRole($role, $projectId) {
         return $this->projects()
-            ->where('project_id', $projectId)
-            ->wherePivot('role', $role)
-            ->exists();
+                        ->where('project_id', $projectId)
+                        ->wherePivot('role', $role)
+                        ->exists();
     }
 
-    public function projects()
-    {
+    public function projects() {
         return $this->belongsToMany(Project::class, 'project_user_mappings');
     }
 
-    public function notifications()
-    {
+    public function notifications() {
         return $this->hasMany(Notification::class);
     }
 
-    public function tasks()
-    {
+    public function tasks() {
         return $this->hasMany(Task::class);
     }
 }
