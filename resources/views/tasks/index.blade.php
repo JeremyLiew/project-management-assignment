@@ -1,17 +1,16 @@
+<!-- Jeremy -->
 @extends('layouts.app')
 
 @section('content')
 <div class="container mt-5">
     <h1>Task Management</h1>
 
-    <!-- Flash messages -->
     @if (session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
 
-    <!-- Task Listing -->
     <div class="card mt-4">
         <div class="card-header">
             <h3 class="card-title">Tasks</h3>

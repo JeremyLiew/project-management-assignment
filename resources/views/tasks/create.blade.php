@@ -1,3 +1,4 @@
+<!-- Jeremy -->
 @extends('layouts.app')
 
 @section('content')
@@ -12,7 +13,6 @@
                 <h3 class="card-title">Task Details</h3>
             </div>
             <div class="card-body">
-                <!-- Task Name -->
                 <div class="form-group mb-3">
                     <label for="name">Task Name</label>
                     <input type="text" name="name" id="name" class="form-control" required>
@@ -21,7 +21,6 @@
                     @enderror
                 </div>
 
-                <!-- Description -->
                 <div class="form-group mb-3">
                     <label for="description">Description</label>
                     <textarea name="description" id="description" class="form-control" rows="3"></textarea>
@@ -30,7 +29,6 @@
                     @enderror
                 </div>
 
-                <!-- Assign to User -->
                 <div class="form-group mb-3">
                     <label for="user_id">Assign to User</label>
                     <select name="user_id" id="user_id" class="form-control" required>
@@ -44,7 +42,6 @@
                     @enderror
                 </div>
 
-                <!-- Priority -->
                 <div class="form-group mb-3">
                     <label for="priority">Priority</label>
                     <select name="priority" id="priority" class="form-control">
@@ -57,7 +54,6 @@
                     @enderror
                 </div>
 
-                <!-- Select Project -->
                 <div class="form-group mb-3">
                     <label for="project_id">Select Project</label>
                     <select name="project_id" id="project_id" class="form-control" required>
@@ -71,7 +67,6 @@
                     @enderror
                 </div>
 
-                <!-- Related Expense -->
                 <div class="form-group mb-3">
                     <label for="expense_id">Related Expense (Optional)</label>
                     <select name="expense_id" id="expense_id" class="form-control">

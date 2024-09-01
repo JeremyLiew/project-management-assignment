@@ -1,3 +1,4 @@
+<!-- Jeremy -->
 @extends('layouts.app')
 
 @section('content')
@@ -13,7 +14,6 @@
                 @csrf
                 @method('PUT')
 
-                <!-- Task Name -->
                 <div class="form-group mb-3">
                     <label for="name">Task Name</label>
                     <input type="text" id="name" name="name" class="form-control" value="{{ old('name', $task->name) }}" required>
@@ -22,7 +22,6 @@
                     @enderror
                 </div>
 
-                <!-- Task Description -->
                 <div class="form-group mb-3">
                     <label for="description">Description</label>
                     <textarea id="description" name="description" class="form-control" rows="3" required>{{ old('description', $task->description) }}</textarea>
@@ -31,7 +30,6 @@
                     @enderror
                 </div>
 
-                <!-- Task Status -->
                 <div class="form-group mb-3">
                     <label for="status">Status</label>
                     <select id="status" name="status" class="form-control" required>
@@ -44,7 +42,6 @@
                     @enderror
                 </div>
 
-                <!-- Assign User -->
                 <div class="form-group mb-3">
                     <label for="user_id">Assign User</label>
                     <select id="user_id" name="user_id" class="form-control" required>
@@ -57,7 +54,6 @@
                     @enderror
                 </div>
 
-                <!-- Select Project -->
                 <div class="form-group mb-3">
                     <label for="project_id">Project</label>
                     <select id="project_id" name="project_id" class="form-control" disabled>
@@ -70,7 +66,6 @@
                     @enderror
                 </div>
 
-                <!-- Priority -->
                 <div class="form-group mb-3">
                     <label for="priority">Priority</label>
                     <select name="priority" id="priority" class="form-control">
@@ -80,7 +75,6 @@
                     </select>
                 </div>
 
-                <!-- Related Expense -->
                 <div class="form-group mb-3">
                     <label for="expense_id">Related Expense</label>
                     <select id="expense_id" name="expense_id" class="form-control">

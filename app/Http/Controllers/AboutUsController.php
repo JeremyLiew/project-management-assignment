@@ -1,5 +1,5 @@
 <?php
-
+// Jeremy
 namespace App\Http\Controllers;
 
 use App\Http\Requests\AboutUs\GetMembersRequest;
@@ -12,7 +12,7 @@ class AboutUsController extends Controller
 
     public function index()
     {
-        $response = $this->fetchApiData();
+        $response = $this->fetchAboutUsData();
 
         if ($response->successful()) {
             $result = $response->json();
@@ -29,9 +29,10 @@ class AboutUsController extends Controller
 
     public function getMembersViaWebService(GetMembersRequest $request)
     {
-        $validator = $request->validated();
-        $query = strtolower($validator['query']);
-        $response = $this->fetchApiData();
+        $validatedData = $request->validated();
+        $query = strtolower($validatedData['query']);
+
+        $response = $this->fetchFilteredMembers($query);
 
         if ($response->successful()) {
             $result = $response->json();
@@ -40,10 +41,8 @@ class AboutUsController extends Controller
                 $members = $result['data']['members'];
                 $aboutUsContent = $result['data']['about_us'];
 
-                $filteredMembers = $this->filterMembers($members, $query);
-
                 return view('aboutus.index', [
-                    'members' => $filteredMembers,
+                    'members' => $members,
                     'aboutUsContent' => $aboutUsContent
                 ]);
             } else {
@@ -54,9 +53,15 @@ class AboutUsController extends Controller
         }
     }
 
-    private function fetchApiData()
+    private function fetchAboutUsData()
     {
         return Http::get($this->apiUrl);
+    }
+
+    private function fetchFilteredMembers($query)
+    {
+        $url = $this->apiUrl . '?query=' . urlencode($query);
+        return Http::get($url);
     }
 
     private function renderView($data)
@@ -70,21 +75,5 @@ class AboutUsController extends Controller
     private function renderErrorView($errorMessage)
     {
         return view('aboutus.index', ['error' => $errorMessage]);
-    }
-
-    private function filterMembers($members, $query)
-    {
-        if ($query) {
-            return array_filter($members, function ($member) use ($query) {
-                $nameMatch = stripos(strtolower($member['name']), $query) !== false;
-                $skillsMatch = array_filter(array_map('strtolower', $member['skills']), function ($skill) use ($query) {
-                    return stripos($skill, $query) !== false;
-                });
-
-                return $nameMatch || !empty($skillsMatch);
-            });
-        }
-
-        return $members;
     }
 }
