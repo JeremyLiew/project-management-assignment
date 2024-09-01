@@ -24,7 +24,7 @@
 
                 <div class="form-group mb-3">
                     <label for="description">Description</label>
-                    <textarea id="description" name="description" class="form-control" rows="3" required>{{ old('description', $task->description) }}</textarea>
+                    <textarea id="description" name="description" class="form-control" rows="3">{{ old('description', $task->description) }}</textarea>
                     @error('description')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror

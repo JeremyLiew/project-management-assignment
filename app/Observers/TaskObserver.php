@@ -17,7 +17,7 @@ class TaskObserver {
     public function created(Task $task): void {
         $this->sendTaskAssignmentEmail($task);
 
-        ProgressTrackingService::initialize($task);
+        // ProgressTrackingService::initialize($task);
     }
 
     /**
@@ -28,9 +28,9 @@ class TaskObserver {
             $this->sendTaskAssignmentEmail($task);
         }
 
-        GanttChartService::update($task);
-        ProgressTrackingService::update($task);
-        ResourceAllocationService::update($task);
+        // GanttChartService::update($task);
+        // ProgressTrackingService::update($task);
+        // ResourceAllocationService::update($task);
     }
 
     protected function sendTaskAssignmentEmail(Task $task) {

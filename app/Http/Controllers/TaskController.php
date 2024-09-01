@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Decorators\TaskLogDecorator;
 use App\Http\Requests\Task\StoreTaskRequest;
+use App\Http\Requests\Task\TaskFilterRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
 use App\Mail\TaskAssigned;
 use App\Models\Expense;
@@ -19,15 +20,43 @@ use Illuminate\Support\Facades\Mail;
 class TaskController extends Controller
 {
 
-    public function index()
+    public function index(TaskFilterRequest $request)
     {
         $taskLogger = new TaskLogDecorator(null);
+        $validatedData = $request->validated();
+
         try {
-            $tasks = Task::all();
+            $query = Task::query();
+
+            if (!empty($validatedData['name'])) {
+                $query->where('name', 'like', '%' . $validatedData['name'] . '%');
+            }
+            if (!empty($validatedData['status'])) {
+                $query->where('status', $validatedData['status']);
+            }
+            if (!empty($validatedData['user_id'])) {
+                $query->where('user_id', $validatedData['user_id']);
+            }
+            if (!empty($validatedData['project_id'])) {
+                $query->where('project_id', $validatedData['project_id']);
+            }
+            if (!empty($validatedData['priority'])) {
+                $query->where('priority', $validatedData['priority']);
+            }
+
+            $tasks = $query->latest()->get();
+
             $taskLogger->logAction('Fetched Tasks Data', ['status' => '200']);
-            return view('tasks.index', compact('tasks'));
+
+            return view('tasks.index', [
+                'tasks' => $tasks,
+                'users' => User::all(),
+                'projects' => Project::all(),
+                'priorities' => ['low', 'medium', 'high'],
+            ]);
         } catch (\Exception $e) {
             $taskLogger->logAction('Failed to Fetch Tasks', ['error' => $e->getMessage()]);
+
             return redirect()->route('tasks.index')->with('error', 'Failed to fetch tasks.');
         }
     }
@@ -51,7 +80,10 @@ class TaskController extends Controller
                 'name' => $task->name,
                 'description' => $task->description,
                 'project_id' => $task->project_id,
-                'user_id' => $task->user_id
+                'user_id' => $task->user_id,
+                'status' => $task->status,
+                'priority' => $task->priority,
+                'expense_id' => $task->expense_id
             ]);
 
             return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
@@ -88,7 +120,10 @@ class TaskController extends Controller
                 'name' => $task->name,
                 'description' => $task->description,
                 'project_id' => $task->project_id,
-                'user_id' => $task->user_id
+                'user_id' => $task->user_id,
+                'status' => $task->status,
+                'priority' => $task->priority,
+                'expense_id' => $task->expense_id
             ]);
 
             return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
@@ -109,7 +144,10 @@ class TaskController extends Controller
                 'name' => $task->name,
                 'description' => $task->description,
                 'project_id' => $task->project_id,
-                'user_id' => $task->user_id
+                'user_id' => $task->user_id,
+                'status' => $task->status,
+                'priority' => $task->priority,
+                'expense_id' => $task->expense_id
             ]);
 
             return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');

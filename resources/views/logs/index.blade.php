@@ -20,7 +20,7 @@
                 <div class="col-md-3">
                     <div class="form-group">
                         <label for="user">User</label>
-                        <input type="text" id="user" name="user" class="form-control" value="{{ request('user') }}">
+                        <input type="text" id="user" name="user" class="form-control" placeholder="User Name" value="{{ request('user') }}">
                     </div>
                 </div>
                 <div class="col-md-3">
