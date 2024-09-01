@@ -4,9 +4,14 @@ namespace App\Decorators;
 
 use App\Models\Log;
 
-class ProjectLogDecorator extends LogDecorator
+class AboutUsLogDecorator extends LogDecorator
 {
     protected $logLevel = null;
+
+    public function __construct($loggable)
+    {
+        parent::__construct($loggable);
+    }
 
     public function logAction($action, $details)
     {
@@ -14,8 +19,8 @@ class ProjectLogDecorator extends LogDecorator
 
         $log = new Log();
         $log->action = $action;
-        $log->model_type = 'Project';
-        $log->model_id = $this->loggable ? $this->loggable->id : null;
+        $log->model_type = 'About Us';
+        $log->model_id = null;
         $log->user_id = auth()->id();
         $log->log_level = $this->logLevel;
         $log->changes = json_encode($details);
@@ -25,23 +30,17 @@ class ProjectLogDecorator extends LogDecorator
     private function determineLogLevel($action)
     {
         switch ($action) {
-            case 'Fetched Projects Data':
-            case 'Created':
-            case 'Updated':
-            case 'Fetched':
-            case 'Viewed':
+            case 'Fetched About Us Data':
+            case 'Search Members':
                 return 'INFO';
-            case 'Failed to Fetch Projects':
-            case 'Failed to Create Project':
-            case 'Failed to Fetch Project for Editing':
-            case 'Failed to Update Project':
-            case 'Failed to Delete Project':
-                return 'ERROR';
-            case 'Deleted':
+            case 'Fetch Error':
+            case 'Search Error':
                 return 'WARNING';
+            case 'Fetch Failure':
+            case 'Search Failure':
+                return 'ERROR';
             default:
                 return 'DEBUG';
         }
     }
 }
-

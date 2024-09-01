@@ -1,5 +1,5 @@
-<!-- Jeremy -->
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Jeremy -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:param name="actionToCount"/>
 
@@ -13,6 +13,7 @@
                     <th>Model ID</th>
                     <th>User</th>
                     <th>Changes</th>
+                    <th>Log Level</th>
                     <th>Created At</th>
                 </tr>
             </thead>
@@ -28,6 +29,7 @@
                         <td><xsl:value-of select="model_id"/></td>
                         <td><xsl:value-of select="user"/></td>
                         <td><pre><xsl:value-of select="changes"/></pre></td>
+                        <td><xsl:value-of select="log_level"/></td>
                         <td><xsl:value-of select="created_at"/></td>
                     </tr>
                 </xsl:for-each>

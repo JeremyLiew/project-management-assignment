@@ -2,9 +2,10 @@
 // Jeremy
 namespace App\Decorators;
 
+use App\Interfaces\LogInterface;
 use App\Models\Log;
 
-abstract class LogDecorator
+abstract class LogDecorator implements LogInterface
 {
     protected $loggable;
 
@@ -12,6 +13,4 @@ abstract class LogDecorator
     {
         $this->loggable = $loggable;
     }
-
-    abstract public function logAction($action, $details);
 }

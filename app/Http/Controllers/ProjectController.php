@@ -14,38 +14,52 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projects = Project::with('budget')->get();
-
-        return view('projects.index', compact('projects'));
+        $projectLogger = new ProjectLogDecorator(null);
+        try {
+            $projects = Project::with('budget')->get();
+            $projectLogger->logAction('Fetched Projects Data', ['status' => '200']);
+            return view('projects.index', compact('projects'));
+        } catch (\Exception $e) {
+            $projectLogger->logAction('Failed to Fetch Projects', ['error' => $e->getMessage()]);
+            return redirect()->route('projects.index')->with('error', 'Failed to fetch projects.');
+        }
     }
 
     public function store(StoreProjectRequest $request)
     {
-        $validator = $request->validated();
+        try {
+            $validator = $request->validated();
 
-        if (count($request->input('members')) !== count(array_unique($request->input('members')))) {
-            return redirect()->back()->withErrors(['members' => 'Duplicate members are not allowed.'])->withInput();
+            if (count($request->input('members')) !== count(array_unique($request->input('members')))) {
+                $projectLogger = new ProjectLogDecorator(null);
+                $projectLogger->logAction('Failed to Create Project', ['error' => 'Attempts to create project with duplicate members.']);
+                return redirect()->back()->withErrors(['members' => 'Duplicate members are not allowed.'])->withInput();
+            }
+
+            $project = Project::create([
+                'name' => $request->input('name'),
+                'description' => $request->input('description'),
+                'budget_id' => $request->input('budget_id'),
+            ]);
+
+            $membersWithRoles = array_combine($validator['members'], $validator['roles']);
+            foreach ($membersWithRoles as $memberId => $role) {
+                $project->users()->attach($memberId, ['role' => $role]);
+            }
+
+            $projectLogger = new ProjectLogDecorator($project);
+            $projectLogger->logAction('Created', [
+                'name' => $project->name,
+                'description' => $project->description,
+                'budget_id' => $project->budget_id
+            ]);
+
+            return redirect()->route('projects.index')->with('success', 'Project created successfully with a budget.');
+        } catch (\Exception $e) {
+            $projectLogger = new ProjectLogDecorator(null);
+            $projectLogger->logAction('Failed to Create Project', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Failed to create project.');
         }
-
-        $project = Project::create([
-            'name' => $request->input('name'),
-            'description' => $request->input('description'),
-            'budget_id' => $request->input('budget_id'),
-        ]);
-
-        $membersWithRoles = array_combine($validator['members'], $validator['roles']);
-        foreach ($membersWithRoles as $memberId => $role) {
-            $project->users()->attach($memberId, ['role' => $role]);
-        }
-
-        $projectLogger = new ProjectLogDecorator($project);
-        $projectLogger->logAction('Created', [
-            'name' => $project->name,
-            'description' => $project->description,
-            'budget_id' => $project->budget_id
-        ]);
-
-        return redirect()->route('projects.index')->with('success', 'Project created successfully with a budget.');
     }
 
     public function create(){
@@ -56,58 +70,77 @@ class ProjectController extends Controller
 
     public function edit($id)
     {
-        $project = Project::findOrFail($id);
-        $budgets = Budget::all();
-        $users = User::all();
-        $assignedUsers = $project->users->pluck('id')->toArray();
-        return view('projects.edit', compact('project', 'budgets','users', 'assignedUsers'));
+        try {
+            $project = Project::findOrFail($id);
+            $budgets = Budget::all();
+            $users = User::all();
+            $assignedUsers = $project->users->pluck('id')->toArray();
+            return view('projects.edit', compact('project', 'budgets', 'users', 'assignedUsers'));
+        } catch (\Exception $e) {
+            $projectLogger = new ProjectLogDecorator(null);
+            $projectLogger->logAction('Failed to Fetch Project for Editing', ['error' => $e->getMessage()]);
+            return redirect()->route('projects.index')->with('error', 'Failed to fetch project for editing.');
+        }
     }
 
     public function update(UpdateProjectRequest $request, $id)
     {
-        $validator = $request->validated();
+        try {
+            $validator = $request->validated();
 
-        if (count($request->input('members')) !== count(array_unique($request->input('members')))) {
-            return redirect()->back()->withErrors(['members' => 'Duplicate members are not allowed.'])->withInput();
+            if (count($request->input('members')) !== count(array_unique($request->input('members')))) {
+                $projectLogger = new ProjectLogDecorator(null);
+                $projectLogger->logAction('Failed to Update Project', ['error' => 'Attempts to create project with duplicate members.']);
+                return redirect()->back()->withErrors(['members' => 'Duplicate members are not allowed.'])->withInput();
+            }
+
+            $project = Project::findOrFail($id);
+
+            $project->update([
+                'name' => $request->input('name'),
+                'description' => $request->input('description'),
+                'budget_id' => $request->input('budget_id'),
+            ]);
+
+            $project->users()->detach();
+
+            $membersWithRoles = array_combine($validator['members'], $validator['roles']);
+            foreach ($membersWithRoles as $memberId => $role) {
+                $project->users()->attach($memberId, ['role' => $role]);
+            }
+
+            $projectLogger = new ProjectLogDecorator($project);
+            $projectLogger->logAction('Updated', [
+                'name' => $project->name,
+                'description' => $project->description,
+                'budget_id' => $project->budget_id
+            ]);
+
+            return redirect()->route('projects.index')->with('success', 'Project updated successfully with a budget.');
+        } catch (\Exception $e) {
+            $projectLogger = new ProjectLogDecorator(null);
+            $projectLogger->logAction('Failed to Update Project', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Failed to update project.');
         }
-
-        $project = Project::findOrFail($id);
-
-        $project->update([
-            'name' => $request->input('name'),
-            'description' => $request->input('description'),
-            'budget_id' => $request->input('budget_id'),
-        ]);
-
-        $project->users()->detach();
-
-        $membersWithRoles = array_combine($validator['members'], $validator['roles']);
-        foreach ($membersWithRoles as $memberId => $role) {
-            $project->users()->attach($memberId, ['role' => $role]);
-        }
-
-        $projectLogger = new ProjectLogDecorator($project);
-        $projectLogger->logAction('Updated', [
-            'name' => $project->name,
-            'description' => $project->description,
-            'budget_id' => $project->budget_id
-        ]);
-
-        return redirect()->route('projects.index')->with('success', 'Project updated successfully with a budget.');
     }
 
     public function destroy(Project $project)
     {
-        $project->delete();
+        try {
+            $project->delete();
 
-        $projectLogger = new ProjectLogDecorator($project);
-        $projectLogger->logAction('Deleted', [
-            'name' => $project->name,
-            'description' => $project->description,
-            'budget_id' => $project->budget_id
-        ]);
+            $projectLogger = new ProjectLogDecorator($project);
+            $projectLogger->logAction('Deleted', [
+                'name' => $project->name,
+                'description' => $project->description,
+                'budget_id' => $project->budget_id
+            ]);
 
-        return redirect()->route('projects.index')
-                         ->with('success', 'Project deleted successfully.');
+            return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
+        } catch (\Exception $e) {
+            $projectLogger = new ProjectLogDecorator(null);
+            $projectLogger->logAction('Failed to Delete Project', ['error' => $e->getMessage()]);
+            return redirect()->route('projects.index')->with('error', 'Failed to delete project.');
+        }
     }
 }

@@ -2,6 +2,7 @@
 // Jeremy
 namespace App\Http\Controllers;
 
+use App\Decorators\AboutUsLogDecorator;
 use App\Http\Requests\AboutUs\GetMembersRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -13,16 +14,20 @@ class AboutUsController extends Controller
     public function index()
     {
         $response = $this->fetchAboutUsData();
+        $logDecorator = new AboutUsLogDecorator(null);
 
         if ($response->successful()) {
             $result = $response->json();
+            $logDecorator->logAction('Fetched About Us Data', ['status' => $result['status']]);
 
             if ($result['status'] == 200) {
                 return $this->renderView($result['data']);
             } else {
+                $logDecorator->logAction('Fetch Error', ['status_message' => $result['status_message']]);
                 return $this->renderErrorView($result['status_message']);
             }
         } else {
+            $logDecorator->logAction('Fetch Failure', ['error' => 'Failed to fetch data from API.']);
             return $this->renderErrorView('Failed to fetch data from API.');
         }
     }
@@ -33,9 +38,12 @@ class AboutUsController extends Controller
         $query = strtolower($validatedData['query']);
 
         $response = $this->fetchFilteredMembers($query);
+        $logDecorator = new AboutUsLogDecorator(null);
 
         if ($response->successful()) {
             $result = $response->json();
+
+            $logDecorator->logAction('Search Members', ['query' => $query, 'status' => $result['status']]);
 
             if ($result['status'] == 200) {
                 $members = $result['data']['members'];
@@ -46,9 +54,11 @@ class AboutUsController extends Controller
                     'aboutUsContent' => $aboutUsContent
                 ]);
             } else {
+                $logDecorator->logAction('Search Error', ['status_message' => $result['status_message']]);
                 return $this->renderErrorView($result['status_message']);
             }
         } else {
+            $logDecorator->logAction('Search Failure', ['error' => 'Failed to fetch data from API.']);
             return $this->renderErrorView('Failed to fetch data from API.');
         }
     }
