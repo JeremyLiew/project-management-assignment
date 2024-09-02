@@ -20,7 +20,6 @@
             <form action="{{ route('projects.update', $project->id) }}" method="POST">
                 @csrf
                 @method('PUT')
-
                 <div class="form-group mb-3">
                     <label for="name">Project Name</label>
                     <input type="text" id="name" name="name" class="form-control" value="{{ old('name', $project->name) }}" required>

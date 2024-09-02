@@ -19,7 +19,6 @@
         <div class="card-body">
             <form action="{{ route('projects.store') }}" method="POST">
                 @csrf
-
                 <div class="form-group mb-3">
                     <label for="name">Project Name</label>
                     <input type="text" id="name" name="name" class="form-control" value="{{ old('name') }}" required>

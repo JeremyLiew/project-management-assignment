@@ -7,8 +7,8 @@ use App\Http\Controllers\ProjectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\AboutUsController;
-use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\LoginRegisterController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -37,3 +37,12 @@ Route::get('about-us', [AboutUsController::class,'index'])->name('about-us');
 Route::post('/about-us/members', [AboutUsController::class,'getMembersViaWebService'])->name('about-us-post');
 
 Route::get('/create-users', [UserController::class, 'createUsers']);
+
+Route::controller(LoginRegisterController::class)->group(function() {
+    Route::get('/register', 'register')->name('register');
+    Route::post('/store', 'store')->name('store');
+    Route::get('/login', 'login')->name('login');
+    Route::post('/authenticate', 'authenticate')->name('authenticate');
+    Route::get('/home', 'home')->name('home');
+    Route::post('/logout', 'logout')->name('logout');
+});
