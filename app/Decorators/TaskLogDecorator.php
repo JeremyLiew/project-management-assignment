@@ -3,6 +3,7 @@
 namespace App\Decorators;
 
 use App\Models\Log;
+use Illuminate\Support\Facades\Auth;
 
 class TaskLogDecorator extends LogDecorator
 {
@@ -16,7 +17,7 @@ class TaskLogDecorator extends LogDecorator
         $log->action = $action;
         $log->model_type = 'Task';
         $log->model_id = $this->loggable ? $this->loggable->id : null;
-        $log->user_id = auth()->id();
+        $log->user_id = Auth::check() ? auth()->id() : null;
         $log->log_level = $this->logLevel;
         $log->changes = json_encode($details);
         $log->save();

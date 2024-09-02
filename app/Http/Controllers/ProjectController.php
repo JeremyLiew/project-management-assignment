@@ -51,7 +51,8 @@ class ProjectController extends Controller
             $projectLogger->logAction('Created', [
                 'name' => $project->name,
                 'description' => $project->description,
-                'budget_id' => $project->budget_id
+                'budget_id' => $project->budget_id,
+                'members' => $membersWithRoles,
             ]);
 
             return redirect()->route('projects.index')->with('success', 'Project created successfully with a budget.');
@@ -113,7 +114,8 @@ class ProjectController extends Controller
             $projectLogger->logAction('Updated', [
                 'name' => $project->name,
                 'description' => $project->description,
-                'budget_id' => $project->budget_id
+                'budget_id' => $project->budget_id,
+                'members' => $membersWithRoles,
             ]);
 
             return redirect()->route('projects.index')->with('success', 'Project updated successfully with a budget.');
@@ -127,13 +129,18 @@ class ProjectController extends Controller
     public function destroy(Project $project)
     {
         try {
+            $membersWithRoles = $project->users->mapWithKeys(function ($user) {
+                return [$user->id => $user->pivot->role];
+            })->toArray();
+
             $project->delete();
 
             $projectLogger = new ProjectLogDecorator($project);
             $projectLogger->logAction('Deleted', [
                 'name' => $project->name,
                 'description' => $project->description,
-                'budget_id' => $project->budget_id
+                'budget_id' => $project->budget_id,
+                'members' => $membersWithRoles,
             ]);
 
             return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');

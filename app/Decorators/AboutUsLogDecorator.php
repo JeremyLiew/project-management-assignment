@@ -3,6 +3,7 @@
 namespace App\Decorators;
 
 use App\Models\Log;
+use Illuminate\Support\Facades\Auth;
 
 class AboutUsLogDecorator extends LogDecorator
 {
@@ -21,7 +22,7 @@ class AboutUsLogDecorator extends LogDecorator
         $log->action = $action;
         $log->model_type = 'About Us';
         $log->model_id = null;
-        $log->user_id = auth()->id();
+        $log->user_id = Auth::check() ? auth()->id() : null;
         $log->log_level = $this->logLevel;
         $log->changes = json_encode($details);
         $log->save();
