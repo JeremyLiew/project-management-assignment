@@ -15,8 +15,8 @@ class LoginRegisterController extends Controller
     public function __construct()
     {
         // Applying middleware
-        $this->middleware('guest')->except(['home', 'logout']);
-        $this->middleware('auth')->only(['home', 'logout']);
+        $this->middleware('guest')->except(['dashboard', 'logout']);
+        $this->middleware('auth')->only(['dashboard', 'logout']);
     }
 
     public function register(): View
@@ -47,7 +47,7 @@ class LoginRegisterController extends Controller
                 $authLogger->logAction('Registration Successful', [
                     'email' => $request->input('email'),
                 ]);
-                return redirect()->route('home')
+                return redirect()->route('dashboard')
                     ->withSuccess('You have successfully registered & logged in!');
             }
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -88,7 +88,7 @@ class LoginRegisterController extends Controller
             $authLogger->logAction('Login Successful', [
                 'email' => $request->input('email'),
             ]);
-            return redirect()->route('home');
+            return redirect()->route('dashboard');
         } else {
             $authLogger->logAction('Login Failed', [
                 'email' => $request->input('email'),
@@ -100,7 +100,7 @@ class LoginRegisterController extends Controller
 
     }
     
-    public function home(): View
+    public function dashboard(): View
     {
         return view('dashboard.index');
     } 

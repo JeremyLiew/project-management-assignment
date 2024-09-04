@@ -43,6 +43,8 @@ Route::controller(LoginRegisterController::class)->group(function() {
     Route::post('/store', 'store')->name('store');
     Route::get('/login', 'login')->name('login');
     Route::post('/authenticate', 'authenticate')->name('authenticate');
-    Route::get('/home', 'home')->name('home');
+    Route::get('/dashboard', 'index')->name('dashboard');
     Route::post('/logout', 'logout')->name('logout');
 });
+
+Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard')->middleware('is_admin');
