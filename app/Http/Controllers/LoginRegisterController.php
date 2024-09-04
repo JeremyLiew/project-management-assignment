@@ -28,7 +28,7 @@ class LoginRegisterController extends Controller
     
     public function store(Request $request): RedirectResponse
     {
-        $authLogger = new AuthLogDecorator(null, $request);
+        $authLogger = new AuthLogDecorator($request);
 
         try {
             $request->validate([
@@ -78,7 +78,7 @@ class LoginRegisterController extends Controller
 
     public function authenticate(Request $request): RedirectResponse
     {
-        $authLogger = new AuthLogDecorator(null,$request);
+        $authLogger = new AuthLogDecorator($request);
 
         $credentials = $request->validate([
             'email' => 'required|email',
@@ -109,7 +109,7 @@ class LoginRegisterController extends Controller
     
     public function logout(Request $request): RedirectResponse
     {
-        $authLogger = new AuthLogDecorator(null,$request);
+        $authLogger = new AuthLogDecorator($request);
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

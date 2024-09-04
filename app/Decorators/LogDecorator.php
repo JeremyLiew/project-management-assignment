@@ -3,14 +3,18 @@
 namespace App\Decorators;
 
 use App\Interfaces\LogInterface;
-use App\Models\Log;
 
 abstract class LogDecorator implements LogInterface
 {
-    protected $loggable;
+    protected $logComponent;
 
-    public function __construct($loggable)
+    public function __construct(LogInterface $logComponent)
     {
-        $this->loggable = $loggable;
+        $this->logComponent = $logComponent;
+    }
+
+    public function logAction($action, $details)
+    {
+        $this->logComponent->logAction($action, $details);
     }
 }
