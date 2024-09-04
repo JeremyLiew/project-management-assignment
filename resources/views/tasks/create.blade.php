@@ -80,6 +80,14 @@
                     @enderror
                 </div>
 
+                <div class="form-group mb-3">
+                    <label for="due_date">Due Date</label>
+                    <input type="date" name="due_date" id="due_date" class="form-control">
+                    @error('due_date')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <button type="submit" class="btn btn-primary">Create Task</button>
             </div>
         </div>

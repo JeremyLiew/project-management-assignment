@@ -14,6 +14,7 @@ class StoreTaskRequest extends FormRequest
             'user_id' => ['required', 'exists:users,id'],
             'project_id' => ['required', 'exists:projects,id'],
             'expense_id' => ['nullable', 'exists:expenses,id'],
+            'due_date' => ['nullable','date'],
         ];
 
 

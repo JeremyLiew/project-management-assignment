@@ -15,6 +15,7 @@ class UpdateTaskRequest extends FormRequest
             'status' => ['required', 'string'],
             'user_id' => ['required', 'exists:users,id'],
             'expense_id' => ['nullable', 'exists:expenses,id'],
+            'due_date' => ['nullable','date'],
         ];
     }
 

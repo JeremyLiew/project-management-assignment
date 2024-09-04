@@ -1,4 +1,3 @@
-<!-- Jeremy -->
 @extends('layouts.app')
 
 @section('content')
@@ -69,6 +68,12 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="due_date">Due Date</label>
+                            <input type="date" id="due_date" name="due_date" class="form-control" value="{{ request('due_date') }}">
+                        </div>
+                    </div>
                     <div class="col-md-3 mt-4">
                         <button type="submit" class="btn btn-primary">Apply Filters</button>
                     </div>
@@ -88,6 +93,7 @@
                         <th>Assigned User</th>
                         <th>Project</th>
                         <th>Priority</th>
+                        <th>Due Date</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -108,6 +114,7 @@
                                     {{ ucfirst($task->priority) }}
                                 </span>
                             </td>
+                            <td>{{ $task->due_date->format('Y-m-d') }}</td>
                             <td>
                                 <a href="{{ route('tasks.edit', $task->id) }}" class="btn btn-primary btn-sm">Edit</a>
                                 <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" style="display:inline;">
@@ -133,5 +140,4 @@
     text-overflow: ellipsis;
     white-space: normal;
 }
-
 </style>

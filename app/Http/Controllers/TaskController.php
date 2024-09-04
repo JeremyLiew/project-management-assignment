@@ -44,6 +44,10 @@ class TaskController extends Controller
                 $query->where('priority', $validatedData['priority']);
             }
 
+            if (!empty($validatedData['due_date'])) {
+                $query->whereDate('due_date', $validatedData['due_date']);
+            }
+
             $tasks = $query->latest()->get();
 
             $taskLogger->logAction('Fetched Tasks Data', ['status' => '200']);
@@ -83,7 +87,8 @@ class TaskController extends Controller
                 'user_id' => $task->user_id,
                 'status' => $task->status,
                 'priority' => $task->priority,
-                'expense_id' => $task->expense_id
+                'expense_id' => $task->expense_id,
+                'due_date' => $task->due_date,
             ]);
 
             return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
@@ -123,7 +128,8 @@ class TaskController extends Controller
                 'user_id' => $task->user_id,
                 'status' => $task->status,
                 'priority' => $task->priority,
-                'expense_id' => $task->expense_id
+                'expense_id' => $task->expense_id,
+                'due_date' => $task->due_date,
             ]);
 
             return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
@@ -147,7 +153,8 @@ class TaskController extends Controller
                 'user_id' => $task->user_id,
                 'status' => $task->status,
                 'priority' => $task->priority,
-                'expense_id' => $task->expense_id
+                'expense_id' => $task->expense_id,
+                'due_date' => $task->due_date,
             ]);
 
             return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');

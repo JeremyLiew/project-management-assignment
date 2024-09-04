@@ -2,17 +2,30 @@
 
 namespace App\Console;
 
+use App\Mail\TaskOverdue;
+use App\Models\Task;
+use App\Notifications\TaskOverdueNotification;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class Kernel extends ConsoleKernel
 {
-    /**
-     * Define the application's command schedule.
-     */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->call(function () {
+            try {
+                $tasks = Task::where('due_date', '<', now())
+                            //  ->whereNull('completed_at')
+                             ->get();
+                foreach ($tasks as $task) {
+                    Mail::to($task->user->email)->send(new TaskOverdue($task));
+                }
+            } catch (\Exception $e) {
+                Log::error('Error in scheduled task: ' . $e->getMessage());
+            }
+        })->hourly();
     }
 
     /**

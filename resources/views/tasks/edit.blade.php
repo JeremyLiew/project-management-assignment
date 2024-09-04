@@ -88,6 +88,14 @@
                     @enderror
                 </div>
 
+                <div class="form-group mb-3">
+                    <label for="due_date">Due Date</label>
+                    <input type="date" name="due_date" id="due_date" class="form-control" value="{{ old('due_date', $task->due_date ? $task->due_date->format('Y-m-d') : '') }}">
+                    @error('due_date')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <button type="submit" class="btn btn-primary">Update Task</button>
             </form>
         </div>

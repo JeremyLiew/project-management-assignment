@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Task Assignment Notification</title>
+    <title>Task Overdue Notification</title>
     <style>
         body {
             margin: 0;
@@ -68,16 +68,16 @@
         }
     </style>
 </head>
-<body style="background-color: #1b142d !important;">
+<body>
     <div class="content-row">
         <div class="container">
-            <h1>New Task Assigned to You!</h1>
+            <h1>Task Overdue Alert</h1>
             <p>Hi {{ $assignee }},</p>
-            <p>You have been assigned a new task: <strong>{{ $task }}</strong>.</p>
-            <p>Please log in to your account to view and manage the task.</p>
+            <p>The task <strong>{{ $task }}</strong> is overdue. Please review it as soon as possible.</p>
+            <p>Log in to your account to view and manage your tasks.</p>
 
             <div class="button-container">
-                <a style="color:white" href="{{ url('/tasks') }}" class="button">View Task</a>
+                <a href="{{ url('/tasks') }}" class="button">View Tasks</a>
             </div>
         </div>
     </div>
