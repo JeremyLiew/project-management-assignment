@@ -23,7 +23,8 @@ class User extends Authenticatable {
         'name',
         'email',
         'password',
-        'phone', 5
+        'phone',
+        'is_admin', 5
     ];
 
     public function getRole() {
