@@ -6,16 +6,11 @@ use App\Decorators\TaskLogDecorator;
 use App\Http\Requests\Task\StoreTaskRequest;
 use App\Http\Requests\Task\TaskFilterRequest;
 use App\Http\Requests\Task\UpdateTaskRequest;
-use App\Mail\TaskAssigned;
 use App\Models\Expense;
-use App\Models\LoggingDecorator;
-use App\Models\LoggingTaskDecorator;
 use App\Models\Project;
 use App\Models\Task;
-use App\Models\TaskService;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 
 class TaskController extends Controller
 {
@@ -163,5 +158,24 @@ class TaskController extends Controller
             $taskLogger->logAction('Failed to Delete Task', ['error' => $e->getMessage()]);
             return redirect()->route('tasks.index')->with('error', 'Failed to delete task.');
         }
+    }
+
+    public function getProjectUsers($projectId)
+    {
+        $project = Project::find($projectId);
+
+        if (!$project) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Project not found'
+            ], 404);
+        }
+
+        $users = $project->users;
+
+        return response()->json([
+            'success' => true,
+            'users' => $users
+        ]);
     }
 }

@@ -6,7 +6,6 @@ use App\Http\Requests\Log\LogFilterRequest;
 use App\Models\Log;
 use DOMDocument;
 use DOMXPath;
-use Illuminate\Http\Request;
 use XSLTProcessor;
 
 class LogController extends Controller

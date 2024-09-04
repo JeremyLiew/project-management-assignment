@@ -101,7 +101,7 @@
                     @foreach($tasks as $task)
                         <tr>
                             <td>{{ $task->name }}</td>
-                            <td class="description">{{ $task->description }}</td>
+                            <td class="description">{{ $task->description ?? 'N/A' }}</td>
                             <td>
                                 <span class="badge {{ $task->status == 'Completed' ? 'bg-success' : ($task->status == 'In Progress' ? 'bg-warning' : 'bg-secondary') }}">
                                     {{ $task->status }}
