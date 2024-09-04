@@ -117,7 +117,7 @@
                             <td>{{ $task->due_date->format('Y-m-d') }}</td>
                             <td>
                                 <a href="{{ route('tasks.edit', $task->id) }}" class="btn btn-primary btn-sm">Edit</a>
-                                <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" style="display:inline;">
+                                <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" style="display:inline;" onsubmit="return confirmDeletion();">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger btn-sm">Delete</button>
@@ -132,6 +132,12 @@
     </div>
 </div>
 @endsection
+
+<script>
+function confirmDeletion() {
+    return confirm("Are you sure you want to delete this task?");
+}
+</script>
 
 <style>
 .table td.description {
