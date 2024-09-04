@@ -7,18 +7,19 @@ use App\Http\Controllers\ProjectController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\AboutUsController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LoginRegisterController;
+
 /*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+  |--------------------------------------------------------------------------
+  | Web Routes
+  |--------------------------------------------------------------------------
+  |
+  | Here is where you can register web routes for your application. These
+  | routes are loaded by the RouteServiceProvider and all of them will
+  | be assigned to the "web" middleware group. Make something great!
+  |
+ */
 
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -34,11 +35,11 @@ Route::resource('budgets', BudgetController::class);
 // Route::resource('logs', LogController::class)->middleware('role:Project Manager');
 Route::resource('logs', LogController::class);
 
-Route::get('about-us', [AboutUsController::class,'index'])->name('about-us');
+Route::get('about-us', [AboutUsController::class, 'index'])->name('about-us');
 
-Route::post('/about-us/members', [AboutUsController::class,'getMembersViaWebService'])->name('about-us-post');
+Route::post('/about-us/members', [AboutUsController::class, 'getMembersViaWebService'])->name('about-us-post');
 
-Route::controller(LoginRegisterController::class)->group(function() {
+Route::controller(LoginRegisterController::class)->group(function () {
     Route::get('/register', 'register')->name('register');
     Route::post('/store', 'store')->name('store');
     Route::get('/login', 'login')->name('login');
@@ -48,4 +49,9 @@ Route::controller(LoginRegisterController::class)->group(function() {
     Route::get('/create-users', 'createUsers')->name('createUsers');
 });
 
-Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard')->middleware('is_admin');
+Route::controller(ProfileController::class)->group(function () {
+    Route::get('/profile', 'show')->name('profile.show');
+    Route::post('/profile/update', 'update')->name('profile.update');
+});
+
+Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard')->middleware('isAdmin');

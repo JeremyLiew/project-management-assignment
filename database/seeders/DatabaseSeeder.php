@@ -24,6 +24,5 @@ class DatabaseSeeder extends Seeder
         ExpenseCategory::factory()->count(2)->create();
         Project::factory()->create();
         Expense::factory(5)->create();
-        User::factory()->count(2)->create();
     }
 }
