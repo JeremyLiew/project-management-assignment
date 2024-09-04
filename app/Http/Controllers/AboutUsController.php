@@ -14,7 +14,7 @@ class AboutUsController extends Controller
     public function index(Request $request)
     {
         $response = $this->fetchAboutUsData();
-        $logDecorator = new AboutUsLogDecorator(null, $request);
+        $logDecorator = new AboutUsLogDecorator($request);
 
         if ($response->successful()) {
             $result = $response->json();
@@ -38,7 +38,7 @@ class AboutUsController extends Controller
         $query = strtolower($validatedData['query']);
 
         $response = $this->fetchFilteredMembers($query);
-        $logDecorator = new AboutUsLogDecorator(null,$request);
+        $logDecorator = new AboutUsLogDecorator($request);
 
         if ($response->successful()) {
             $result = $response->json();
