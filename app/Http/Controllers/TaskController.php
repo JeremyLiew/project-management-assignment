@@ -88,7 +88,7 @@ class TaskController extends Controller
                 'status' => $task->status,
                 'priority' => $task->priority,
                 'expense_id' => $task->expense_id,
-                'due_date' => $task->due_date,
+                'due_date' => $task->due_date->format('Y-m-d'),
             ]);
 
             return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
@@ -129,7 +129,7 @@ class TaskController extends Controller
                 'status' => $task->status,
                 'priority' => $task->priority,
                 'expense_id' => $task->expense_id,
-                'due_date' => $task->due_date,
+                'due_date' => $task->due_date->format('Y-m-d'),
             ]);
 
             return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
@@ -154,7 +154,7 @@ class TaskController extends Controller
                 'status' => $task->status,
                 'priority' => $task->priority,
                 'expense_id' => $task->expense_id,
-                'due_date' => $task->due_date,
+                'due_date' => $task->due_date->format('Y-m-d'),
             ]);
 
             return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
