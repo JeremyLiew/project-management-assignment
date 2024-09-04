@@ -9,6 +9,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\AboutUsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LoginRegisterController;
+use App\Http\Controllers\ForgotPasswordController;
 
 /*
   |--------------------------------------------------------------------------
@@ -52,6 +53,13 @@ Route::controller(LoginRegisterController::class)->group(function () {
 Route::controller(ProfileController::class)->group(function () {
     Route::get('/profile', 'show')->name('profile.show');
     Route::post('/profile/update', 'update')->name('profile.update');
+});
+
+Route::controller(ForgotPasswordController::class)->group(function () {
+    Route::get('forget-password', 'showForgetPasswordForm')->name('forget.password.get');
+    Route::post('forget-password', 'submitForgetPasswordForm')->name('forget.password.post');
+    Route::get('reset-password/{token}', 'showResetPasswordForm')->name('reset.password.get');
+    Route::post('reset-password', 'submitResetPasswordForm')->name('reset.password.post');
 });
 
 Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard')->middleware('isAdmin');

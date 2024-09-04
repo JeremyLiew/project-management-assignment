@@ -20,6 +20,9 @@
                             <label for="email" class="form-label">Email:</label>
                             <input type="email" name="email" id="email" class="form-control" value="{{ old('email', auth()->user()->email) }}" required>
                         </div>
+                        
+                        Click <a href="{{ route('reset.password.get', $token) }}">Reset Password</a> to reset password.
+
                         <button type="submit" class="btn btn-success">Update Profile</button>
                     </form>
                 </div>
