@@ -13,26 +13,25 @@ namespace Database\Seeders;
  * @author garys
  */
 use Illuminate\Database\Seeder;
-use App\Models\Admin;
-use App\Models\Manager;
+use App\Models\User;
 
 class UserSeeder extends Seeder {
 
     public function run() {
         // Creating an Admin
-        $admin = new Admin();
-        $admin->name = 'Admin Name';
-        $admin->email = 'admin@example.com';
-        $admin->password = bcrypt('secret');
-        $admin->setAdminLevel(5);
-        $admin->save();
+        User::create([
+            'name' => 'Admin',
+            'email' => 'admin@gmail.com',
+            'password' => bcrypt('admin'),
+            'role' => 'admin',
+        ]);
 
         // Creating a Manager
-        $manager = new Manager();
-        $manager->name = 'Manager Name';
-        $manager->email = 'manager@example.com';
-        $manager->password = bcrypt('secret');
-        $manager->setManagedProjects(['Project 1', 'Project 2']);
-        $manager->save();
+        User::create([
+            'name' => 'Manager',
+            'email' => 'manager@gmail.com',
+            'password' => bcrypt('manager'),
+            'role' => 'manager',
+        ]);
     }
-}
+}    

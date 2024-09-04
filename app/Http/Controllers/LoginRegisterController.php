@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Decorators\AuthLogDecorator;
 use App\Models\User;
+use App\Models\Admin;
+use App\Models\Manager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -16,7 +18,7 @@ class LoginRegisterController extends Controller
     {
         // Applying middleware
         $this->middleware('guest')->except(['dashboard', 'logout']);
-        $this->middleware('auth')->only(['dashboard', 'logout']);
+        $this->middleware('auth')->only(['dashboard', 'logout', 'createUsers']);
     }
 
     public function register(): View
@@ -88,7 +90,8 @@ class LoginRegisterController extends Controller
             $authLogger->logAction('Login Successful', [
                 'email' => $request->input('email'),
             ]);
-            return redirect()->route('dashboard');
+            return redirect()->route('dashboard')
+                 ->withSuccess('Login successful');
         } else {
             $authLogger->logAction('Login Failed', [
                 'email' => $request->input('email'),
@@ -97,7 +100,6 @@ class LoginRegisterController extends Controller
                 'email' => 'Your provided credentials do not match our records.',
             ])->onlyInput('email');
         }
-
     }
     
     public function dashboard(): View
