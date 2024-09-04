@@ -27,6 +27,8 @@ Route::resource('tasks', TaskController::class);
 
 Route::resource('projects', ProjectController::class);
 
+Route::get('/projects/{project}/users', [TaskController::class, 'getProjectUsers']);
+
 Route::resource('budgets', BudgetController::class);
 
 // Route::resource('logs', LogController::class)->middleware('role:Project Manager');

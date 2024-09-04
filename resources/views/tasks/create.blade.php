@@ -1,6 +1,5 @@
-<!-- Jeremy -->
 @extends('layouts.app')
-
+<!-- Jeremy -->
 @section('content')
 <div class="container mt-5">
     <h1>Create New Task</h1>
@@ -15,7 +14,7 @@
             <div class="card-body">
                 <div class="form-group mb-3">
                     <label for="name">Task Name</label>
-                    <input type="text" name="name" id="name" class="form-control" required>
+                    <input type="text" name="name" id="name" class="form-control" value="{{ old('name') }}" required>
                     @error('name')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
@@ -23,33 +22,8 @@
 
                 <div class="form-group mb-3">
                     <label for="description">Description</label>
-                    <textarea name="description" id="description" class="form-control" rows="3"></textarea>
+                    <textarea name="description" id="description" class="form-control" rows="3">{{ old('description') }}</textarea>
                     @error('description')
-                        <div class="text-danger">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-group mb-3">
-                    <label for="user_id">Assign to User</label>
-                    <select name="user_id" id="user_id" class="form-control" required>
-                        <option value="">Select a User</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}">{{ $user->name }}</option>
-                        @endforeach
-                    </select>
-                    @error('user_id')
-                        <div class="text-danger">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="form-group mb-3">
-                    <label for="priority">Priority</label>
-                    <select name="priority" id="priority" class="form-control">
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                    </select>
-                    @error('priority')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
                 </div>
@@ -59,10 +33,35 @@
                     <select name="project_id" id="project_id" class="form-control" required>
                         <option value="">Select a Project</option>
                         @foreach($projects as $project)
-                            <option value="{{ $project->id }}">{{ $project->name }}</option>
+                            <option value="{{ $project->id }}" {{ old('project_id') == $project->id ? 'selected' : '' }}>
+                                {{ $project->name }}
+                            </option>
                         @endforeach
                     </select>
                     @error('project_id')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="user_id">Assign to User</label>
+                    <select name="user_id" id="user_id" class="form-control" required>
+                        <option value="">Select a User</option>
+                        <!-- Users will be loaded dynamically based on selected project -->
+                    </select>
+                    @error('user_id')
+                        <div class="text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="priority">Priority</label>
+                    <select name="priority" id="priority" class="form-control">
+                        <option value="low" {{ old('priority') == 'low' ? 'selected' : '' }}>Low</option>
+                        <option value="medium" {{ old('priority') == 'medium' ? 'selected' : '' }}>Medium</option>
+                        <option value="high" {{ old('priority') == 'high' ? 'selected' : '' }}>High</option>
+                    </select>
+                    @error('priority')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
                 </div>
@@ -72,7 +71,9 @@
                     <select name="expense_id" id="expense_id" class="form-control">
                         <option value="">None</option>
                         @foreach($expenses as $expense)
-                            <option value="{{ $expense->id }}">{{ $expense->description }}</option>
+                            <option value="{{ $expense->id }}" {{ old('expense_id') == $expense->id ? 'selected' : '' }}>
+                                {{ $expense->description }}
+                            </option>
                         @endforeach
                     </select>
                     @error('expense_id')
@@ -82,7 +83,7 @@
 
                 <div class="form-group mb-3">
                     <label for="due_date">Due Date</label>
-                    <input type="date" name="due_date" id="due_date" class="form-control">
+                    <input type="date" name="due_date" id="due_date" class="form-control" value="{{ old('due_date') }}" required>
                     @error('due_date')
                         <div class="text-danger">{{ $message }}</div>
                     @enderror
@@ -94,3 +95,48 @@
     </form>
 </div>
 @endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const projectSelect = document.getElementById('project_id');
+    const userSelect = document.getElementById('user_id');
+
+    function fetchUsers(projectId, selectedUserId = null) {
+        if (!projectId) {
+            userSelect.innerHTML = '<option value="">Select a User</option>';
+            return;
+        }
+
+        axios.get(`/projects/${projectId}/users`)
+            .then(response => {
+                if (response.data.success) {
+                    let options = '<option value="">Select a User</option>';
+                    response.data.users.forEach(user => {
+                        const selected = selectedUserId && user.id == selectedUserId ? 'selected' : '';
+                        options += `<option value="${user.id}" ${selected}>${user.name}</option>`;
+                    });
+                    userSelect.innerHTML = options;
+                } else {
+                    alert(response.data.message || 'Failed to fetch users.');
+                    userSelect.innerHTML = '<option value="">Select a User</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching users:', error);
+                alert('An error occurred while fetching users.');
+                userSelect.innerHTML = '<option value="">Select a User</option>';
+            });
+    }
+
+    projectSelect.addEventListener('change', function() {
+        const selectedProjectId = this.value;
+        fetchUsers(selectedProjectId);
+    });
+
+    @if(old('project_id'))
+        fetchUsers("{{ old('project_id') }}", "{{ old('user_id') }}");
+    @endif
+});
+
+</script>
+

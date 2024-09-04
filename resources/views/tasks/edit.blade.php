@@ -1,6 +1,5 @@
-<!-- Jeremy -->
 @extends('layouts.app')
-
+<!-- Jeremy -->
 @section('content')
 <div class="container mt-5">
     <h1>Edit Task</h1>
@@ -45,9 +44,7 @@
                 <div class="form-group mb-3">
                     <label for="user_id">Assign User</label>
                     <select id="user_id" name="user_id" class="form-control" required>
-                        @foreach($users as $user)
-                            <option value="{{ $user->id }}" {{ old('user_id', $task->user_id) == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
-                        @endforeach
+                        <!-- Users will be loaded dynamically based on selected project -->
                     </select>
                     @error('user_id')
                         <div class="text-danger">{{ $message }}</div>
@@ -102,3 +99,41 @@
     </div>
 </div>
 @endsection
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const projectSelect = document.getElementById('project_id');
+    const userSelect = document.getElementById('user_id');
+
+    function fetchUsers(projectId, selectedUserId = null) {
+        if (!projectId) {
+            userSelect.innerHTML = '<option value="">Select a User</option>';
+            return;
+        }
+
+        axios.get(`/projects/${projectId}/users`)
+            .then(response => {
+                if (response.data.success) {
+                    let options = '<option value="">Select a User</option>';
+                    response.data.users.forEach(user => {
+                        const selected = selectedUserId && user.id == selectedUserId ? 'selected' : '';
+                        options += `<option value="${user.id}" ${selected}>${user.name}</option>`;
+                    });
+                    userSelect.innerHTML = options;
+                } else {
+                    alert(response.data.message || 'Failed to fetch users.');
+                    userSelect.innerHTML = '<option value="">Select a User</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching users:', error);
+                alert('An error occurred while fetching users.');
+                userSelect.innerHTML = '<option value="">Select a User</option>';
+            });
+    }
+
+    const selectedProjectId = "{{ old('project_id', $task->project_id) }}";
+    const selectedUserId = "{{ old('user_id', $task->user_id) }}";
+    fetchUsers(selectedProjectId, selectedUserId);
+});
+</script>
