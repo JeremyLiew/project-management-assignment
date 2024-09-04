@@ -22,7 +22,7 @@ class TaskController extends Controller
 
     public function index(TaskFilterRequest $request)
     {
-        $taskLogger = new TaskLogDecorator(null);
+        $taskLogger = new TaskLogDecorator(null, $request);
         $validatedData = $request->validated();
 
         try {
@@ -75,7 +75,7 @@ class TaskController extends Controller
         try {
             $task = Task::create($request->validated());
 
-            $taskLogger = new TaskLogDecorator($task);
+            $taskLogger = new TaskLogDecorator($task, $request);
             $taskLogger->logAction('Created', [
                 'name' => $task->name,
                 'description' => $task->description,
@@ -88,13 +88,13 @@ class TaskController extends Controller
 
             return redirect()->route('tasks.index')->with('success', 'Task created successfully.');
         } catch (\Exception $e) {
-            $taskLogger = new TaskLogDecorator(null);
+            $taskLogger = new TaskLogDecorator(null, $request);
             $taskLogger->logAction('Failed to Create Task', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Failed to create task.');
         }
     }
 
-    public function edit($id)
+    public function edit($id, Request $request)
     {
         try {
             $task = Task::findOrFail($id);
@@ -103,7 +103,7 @@ class TaskController extends Controller
             $expenses = Expense::all();
             return view('tasks.edit', compact('task', 'users', 'projects', 'expenses'));
         } catch (\Exception $e) {
-            $taskLogger = new TaskLogDecorator(null);
+            $taskLogger = new TaskLogDecorator(null, $request);
             $taskLogger->logAction('Failed to Fetch Task for Editing', ['error' => $e->getMessage()]);
             return redirect()->route('tasks.index')->with('error', 'Failed to fetch task for editing.');
         }
@@ -115,7 +115,7 @@ class TaskController extends Controller
             $task = Task::findOrFail($id);
             $task->update($request->validated());
 
-            $taskLogger = new TaskLogDecorator($task);
+            $taskLogger = new TaskLogDecorator($task, $request);
             $taskLogger->logAction('Updated', [
                 'name' => $task->name,
                 'description' => $task->description,
@@ -128,18 +128,18 @@ class TaskController extends Controller
 
             return redirect()->route('tasks.index')->with('success', 'Task updated successfully.');
         } catch (\Exception $e) {
-            $taskLogger = new TaskLogDecorator($task);
+            $taskLogger = new TaskLogDecorator($task, $request);
             $taskLogger->logAction('Failed to Update Task', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Failed to update task.');
         }
     }
 
-    public function destroy(Task $task)
+    public function destroy(Task $task , Request $request)
     {
         try {
             $task->delete();
 
-            $taskLogger = new TaskLogDecorator($task);
+            $taskLogger = new TaskLogDecorator($task, $request);
             $taskLogger->logAction('Deleted', [
                 'name' => $task->name,
                 'description' => $task->description,
@@ -152,7 +152,7 @@ class TaskController extends Controller
 
             return redirect()->route('tasks.index')->with('success', 'Task deleted successfully.');
         } catch (\Exception $e) {
-            $taskLogger = new TaskLogDecorator(null);
+            $taskLogger = new TaskLogDecorator(null, $request);
             $taskLogger->logAction('Failed to Delete Task', ['error' => $e->getMessage()]);
             return redirect()->route('tasks.index')->with('error', 'Failed to delete task.');
         }

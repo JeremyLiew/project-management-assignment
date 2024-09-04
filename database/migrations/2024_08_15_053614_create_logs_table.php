@@ -19,6 +19,7 @@ class CreateLogsTable extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->text('changes')->nullable();
             $table->string('log_level')->default('INFO');
+            $table->string('ip_address');
             $table->timestamps();
 
             $table->foreign('user_id')

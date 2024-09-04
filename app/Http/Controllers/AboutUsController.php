@@ -11,10 +11,10 @@ class AboutUsController extends Controller
 {
     private $apiUrl = 'http://localhost:8082/api/members';
 
-    public function index()
+    public function index(Request $request)
     {
         $response = $this->fetchAboutUsData();
-        $logDecorator = new AboutUsLogDecorator(null);
+        $logDecorator = new AboutUsLogDecorator(null, $request);
 
         if ($response->successful()) {
             $result = $response->json();
@@ -38,7 +38,7 @@ class AboutUsController extends Controller
         $query = strtolower($validatedData['query']);
 
         $response = $this->fetchFilteredMembers($query);
-        $logDecorator = new AboutUsLogDecorator(null);
+        $logDecorator = new AboutUsLogDecorator(null,$request);
 
         if ($response->successful()) {
             $result = $response->json();

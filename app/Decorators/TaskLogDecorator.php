@@ -3,11 +3,19 @@
 namespace App\Decorators;
 
 use App\Models\Log;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TaskLogDecorator extends LogDecorator
 {
     protected $logLevel;
+    protected $ipAddress;
+
+    public function __construct($loggable, Request $request)
+    {
+        parent::__construct($loggable);
+        $this->ipAddress = $request->ip();
+    }
 
     public function logAction($action, $details)
     {
@@ -20,6 +28,7 @@ class TaskLogDecorator extends LogDecorator
         $log->user_id = Auth::check() ? auth()->id() : null;
         $log->log_level = $this->logLevel;
         $log->changes = json_encode($details);
+        $log->ip_address = $this->ipAddress;
         $log->save();
     }
 

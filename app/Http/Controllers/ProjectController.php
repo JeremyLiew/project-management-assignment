@@ -12,9 +12,9 @@ use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $projectLogger = new ProjectLogDecorator(null);
+        $projectLogger = new ProjectLogDecorator(null, $request);
         try {
             $projects = Project::with('budget')->get();
             $projectLogger->logAction('Fetched Projects Data', ['status' => '200']);
@@ -31,7 +31,7 @@ class ProjectController extends Controller
             $validator = $request->validated();
 
             if (count($request->input('members')) !== count(array_unique($request->input('members')))) {
-                $projectLogger = new ProjectLogDecorator(null);
+                $projectLogger = new ProjectLogDecorator(null, $request);
                 $projectLogger->logAction('Failed to Create Project', ['error' => 'Attempts to create project with duplicate members.']);
                 return redirect()->back()->withErrors(['members' => 'Duplicate members are not allowed.'])->withInput();
             }
@@ -47,7 +47,7 @@ class ProjectController extends Controller
                 $project->users()->attach($memberId, ['role' => $role]);
             }
 
-            $projectLogger = new ProjectLogDecorator($project);
+            $projectLogger = new ProjectLogDecorator($project, $request);
             $projectLogger->logAction('Created', [
                 'name' => $project->name,
                 'description' => $project->description,
@@ -57,7 +57,7 @@ class ProjectController extends Controller
 
             return redirect()->route('projects.index')->with('success', 'Project created successfully with a budget.');
         } catch (\Exception $e) {
-            $projectLogger = new ProjectLogDecorator(null);
+            $projectLogger = new ProjectLogDecorator(null, $request);
             $projectLogger->logAction('Failed to Create Project', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Failed to create project.');
         }
@@ -69,7 +69,7 @@ class ProjectController extends Controller
         return view('projects.create',compact('budgets','users'));
     }
 
-    public function edit($id)
+    public function edit($id, Request $request)
     {
         try {
             $project = Project::findOrFail($id);
@@ -78,7 +78,7 @@ class ProjectController extends Controller
             $assignedUsers = $project->users->pluck('id')->toArray();
             return view('projects.edit', compact('project', 'budgets', 'users', 'assignedUsers'));
         } catch (\Exception $e) {
-            $projectLogger = new ProjectLogDecorator(null);
+            $projectLogger = new ProjectLogDecorator(null, $request);
             $projectLogger->logAction('Failed to Fetch Project for Editing', ['error' => $e->getMessage()]);
             return redirect()->route('projects.index')->with('error', 'Failed to fetch project for editing.');
         }
@@ -90,7 +90,7 @@ class ProjectController extends Controller
             $validator = $request->validated();
 
             if (count($request->input('members')) !== count(array_unique($request->input('members')))) {
-                $projectLogger = new ProjectLogDecorator(null);
+                $projectLogger = new ProjectLogDecorator(null, $request);
                 $projectLogger->logAction('Failed to Update Project', ['error' => 'Attempts to create project with duplicate members.']);
                 return redirect()->back()->withErrors(['members' => 'Duplicate members are not allowed.'])->withInput();
             }
@@ -110,7 +110,7 @@ class ProjectController extends Controller
                 $project->users()->attach($memberId, ['role' => $role]);
             }
 
-            $projectLogger = new ProjectLogDecorator($project);
+            $projectLogger = new ProjectLogDecorator($project, $request);
             $projectLogger->logAction('Updated', [
                 'name' => $project->name,
                 'description' => $project->description,
@@ -120,13 +120,13 @@ class ProjectController extends Controller
 
             return redirect()->route('projects.index')->with('success', 'Project updated successfully with a budget.');
         } catch (\Exception $e) {
-            $projectLogger = new ProjectLogDecorator(null);
+            $projectLogger = new ProjectLogDecorator(null, $request);
             $projectLogger->logAction('Failed to Update Project', ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Failed to update project.');
         }
     }
 
-    public function destroy(Project $project)
+    public function destroy(Project $project , Request $request)
     {
         try {
             $membersWithRoles = $project->users->mapWithKeys(function ($user) {
@@ -135,7 +135,7 @@ class ProjectController extends Controller
 
             $project->delete();
 
-            $projectLogger = new ProjectLogDecorator($project);
+            $projectLogger = new ProjectLogDecorator($project, $request);
             $projectLogger->logAction('Deleted', [
                 'name' => $project->name,
                 'description' => $project->description,
@@ -145,7 +145,7 @@ class ProjectController extends Controller
 
             return redirect()->route('projects.index')->with('success', 'Project deleted successfully.');
         } catch (\Exception $e) {
-            $projectLogger = new ProjectLogDecorator(null);
+            $projectLogger = new ProjectLogDecorator(null, $request);
             $projectLogger->logAction('Failed to Delete Project', ['error' => $e->getMessage()]);
             return redirect()->route('projects.index')->with('error', 'Failed to delete project.');
         }

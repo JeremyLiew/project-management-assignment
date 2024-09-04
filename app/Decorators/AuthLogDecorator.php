@@ -1,12 +1,11 @@
 <?php
-// Jeremy
 namespace App\Decorators;
 
 use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class ProjectLogDecorator extends LogDecorator
+class AuthLogDecorator extends LogDecorator
 {
     protected $logLevel = null;
     protected $ipAddress;
@@ -23,8 +22,8 @@ class ProjectLogDecorator extends LogDecorator
 
         $log = new Log();
         $log->action = $action;
-        $log->model_type = 'Project';
-        $log->model_id = $this->loggable ? $this->loggable->id : null;
+        $log->model_type = 'Authentication';
+        $log->model_id = null;
         $log->user_id = Auth::check() ? auth()->id() : null;
         $log->log_level = $this->logLevel;
         $log->changes = json_encode($details);
@@ -35,23 +34,16 @@ class ProjectLogDecorator extends LogDecorator
     private function determineLogLevel($action)
     {
         switch ($action) {
-            case 'Fetched Projects Data':
-            case 'Created':
-            case 'Updated':
-            case 'Fetched':
-            case 'Viewed':
+            case 'Login Successful':
+            case 'Registration Successful':
+            case 'Logout Successful':
                 return 'INFO';
-            case 'Failed to Fetch Projects':
-            case 'Failed to Create Project':
-            case 'Failed to Fetch Project for Editing':
-            case 'Failed to Update Project':
-            case 'Failed to Delete Project':
+            case 'Login Failed':
+            case 'Validation Failed':
+            case 'Registration Failed':
                 return 'ERROR';
-            case 'Deleted':
-                return 'WARNING';
             default:
                 return 'DEBUG';
         }
     }
 }
-

@@ -17,6 +17,7 @@ class Log extends Model
         'user_id',
         'changes',
         'log_level',
+        'ip_address',
     ];
 
     // Define the relationship with the User model

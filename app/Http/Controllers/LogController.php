@@ -32,6 +32,7 @@ class LogController extends Controller
             $logElement->appendChild($xml->createElement('user', htmlspecialchars(optional($log->user)->name ?? 'N/A')));
             $logElement->appendChild($xml->createElement('changes', htmlspecialchars(json_encode(json_decode($log->changes), JSON_PRETTY_PRINT) ?? 'N/A')));
             $logElement->appendChild($xml->createElement('log_level', htmlspecialchars($log->log_level ?? 'N/A')));
+            $logElement->appendChild($xml->createElement('ip_address', $log->ip_address ?? 'N/A'));
             $logElement->appendChild($xml->createElement('created_at', $log->created_at ? $log->created_at->format('Y-m-d H:i:s') : 'N/A'));
 
             $logsElement->appendChild($logElement);
