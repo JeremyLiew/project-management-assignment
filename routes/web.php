@@ -22,8 +22,7 @@ use App\Http\Controllers\ForgotPasswordController;
   |
  */
 
-Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-
+//Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 // Resource routes for tasks and projects
 Route::resource('tasks', TaskController::class);
 
@@ -43,7 +42,7 @@ Route::post('/about-us/members', [AboutUsController::class, 'getMembersViaWebSer
 Route::controller(LoginRegisterController::class)->group(function () {
     Route::get('/register', 'register')->name('register');
     Route::post('/store', 'store')->name('store');
-    Route::get('/login', 'login')->name('login');
+    Route::get('/', 'login')->name('login');
     Route::post('/authenticate', 'authenticate')->name('authenticate');
     Route::get('/dashboard', 'dashboard')->name('dashboard');
     Route::post('/logout', 'logout')->name('logout');
@@ -62,4 +61,14 @@ Route::controller(ForgotPasswordController::class)->group(function () {
     Route::post('reset-password', 'submitResetPasswordForm')->name('reset.password.post');
 });
 
-Route::get('admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard')->middleware('isAdmin');
+Route::group(['middleware' => ['isAdmin']], function () {
+    Route::get('/admin/routes', function () {
+        return view('admin.dashboard');
+    });
+});
+
+Route::group(['middleware' => ['isManager']], function () {
+    Route::get('/manager/routes', function () {
+        return view('manager.dashboard');
+    });
+});
