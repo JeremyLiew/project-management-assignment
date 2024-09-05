@@ -12,20 +12,25 @@ namespace App\Factories;
  *
  * @author garys
  */
-use App\Models\Admin;
-use App\Models\Manager;
 use App\Models\User;
 
 class UserFactory {
 
     public static function createUser($type) {
+        $user = new User();
+
         switch ($type) {
             case 'admin':
-                return new Admin();
+                $user->role = 'admin';
+                break;
             case 'manager':
-                return new Manager();
+                $user->role = 'manager';
+                break;
             default:
-                return new User();
+                $user->role = 'user';
+                break;
         }
+
+        return $user;
     }
 }

@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -23,12 +22,28 @@ class User extends Authenticatable {
         'name',
         'email',
         'password',
+        'role',
         'phone',
-        'is_admin', 5
+        5
     ];
 
+    /**
+     * Get the role of the user.
+     *
+     * @return string
+     */
     public function getRole() {
-        return 'User';
+        return $this->role;
+    }
+
+    /**
+     * Check if the user has a specific role.
+     *
+     * @param string $role
+     * @return bool
+     */
+    public function hasRole($role) {
+        return $this->role === $role;
     }
 
     /**
@@ -50,21 +65,37 @@ class User extends Authenticatable {
         'email_verified_at' => 'datetime',
     ];
 
-    public function hasRole($role, $projectId) {
+    /**
+     * Check if the user has a specific role within a project.
+     *
+     * @param string $role
+     * @param int $projectId
+     * @return bool
+     */
+    public function hasProjectRole($role, $projectId) {
         return $this->projects()
                         ->where('project_id', $projectId)
                         ->wherePivot('role', $role)
                         ->exists();
     }
 
+    /**
+     * The projects that belong to the user.
+     */
     public function projects() {
         return $this->belongsToMany(Project::class, 'project_user_mappings');
     }
 
+    /**
+     * Get the notifications for the user.
+     */
     public function notifications() {
         return $this->hasMany(Notification::class);
     }
 
+    /**
+     * Get the tasks for the user.
+     */
     public function tasks() {
         return $this->hasMany(Task::class);
     }
