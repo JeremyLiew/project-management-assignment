@@ -87,13 +87,6 @@ class User extends Authenticatable {
     }
 
     /**
-     * Get the notifications for the user.
-     */
-    public function notifications() {
-        return $this->hasMany(Notification::class);
-    }
-
-    /**
      * Get the tasks for the user.
      */
     public function tasks() {
