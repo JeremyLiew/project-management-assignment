@@ -14,6 +14,6 @@ class IsManager {
             return $next($request);
         }
 
-        return redirect('home')->with('error', "You don't have authorized access.");
+        return redirect()->route('dashboard')->with('error', "You don't have authorized access to this page.");
     }
 }
