@@ -22,8 +22,6 @@ use App\Http\Controllers\ForgotPasswordController;
   |
  */
 
-//Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-// Resource routes for tasks and projects
 Route::resource('tasks', TaskController::class);
 
 Route::resource('projects', ProjectController::class);
@@ -31,9 +29,6 @@ Route::resource('projects', ProjectController::class);
 Route::get('/projects/{project}/users', [TaskController::class, 'getProjectUsers']);
 
 Route::resource('budgets', BudgetController::class);
-
-// Route::resource('logs', LogController::class)->middleware('role:Project Manager');
-Route::resource('logs', LogController::class);
 
 Route::get('about-us', [AboutUsController::class, 'index'])->name('about-us');
 
@@ -65,6 +60,8 @@ Route::group(['middleware' => ['isAdmin']], function () {
     Route::get('/admin/routes', function () {
         return view('admin.dashboard');
     });
+
+    Route::resource('logs', LogController::class);
 });
 
 Route::group(['middleware' => ['isManager']], function () {

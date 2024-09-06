@@ -41,9 +41,13 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('budgets.index') }}">{{ __('Budgets') }}</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('logs.index') }}">{{ __('Logs') }}</a>
-                            </li>
+
+                            @if(Auth::check() && Auth::user()->role === 'admin')
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('logs.index') }}">{{ __('Logs') }}</a>
+                                </li>
+                            @endif
+
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('about-us') }}">{{ __('About Us') }}</a>
                             </li>

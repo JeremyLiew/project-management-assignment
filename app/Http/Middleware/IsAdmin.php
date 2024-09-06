@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class IsAdmin {
@@ -18,6 +19,6 @@ class IsAdmin {
             return $next($request);
         }
 
-        return redirect('home')->with('error', "You don't have authorized access.");
+        return redirect()->route('dashboard')->with('error', "You don't have authorized access to this page.");
     }
 }

@@ -9,7 +9,6 @@ class Log extends Model
 {
     use HasFactory;
 
-    // Define the fillable attributes for mass assignment
     protected $fillable = [
         'action',
         'model_type',
@@ -20,7 +19,6 @@ class Log extends Model
         'ip_address',
     ];
 
-    // Define the relationship with the User model
     public function user()
     {
         return $this->belongsTo(User::class);
