@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Log; 
 
 class LoginRegisterController extends Controller
 {
@@ -88,6 +89,10 @@ class LoginRegisterController extends Controller
             $authLogger->logAction('Login Successful', [
                 'email' => $request->input('email'),
             ]);
+
+            $user = Auth::user(); // Retrieve the authenticated user
+            $request->session()->put('user_email', $user->email);
+
             return redirect()->route('dashboard')
                  ->withSuccess('Login successful');
         } else {
