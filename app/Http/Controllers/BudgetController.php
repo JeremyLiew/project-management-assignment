@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Decorators\BudgetLogDecorator;
 use App\Models\Budget;
+use App\Models\Expense;
 use Illuminate\Http\Request;
 
 class BudgetController extends Controller
@@ -12,7 +13,12 @@ class BudgetController extends Controller
     {
         $budgetLogger = new BudgetLogDecorator(null, $request);
         try {
-            $budgets = Budget::all();
+            $budgets = Budget::with('expenses')->get(); // Eager load expenses
+            // Calculate extra costs for each budget
+            foreach ($budgets as $budget) {
+                $totalExpenses = $budget->expenses->sum('amount');
+                $budget->extra_cost = $budget->total_amount - $totalExpenses;
+            }
             $budgetLogger->logAction('Fetched Budgets Data', ['status' => '200']);
             return view('budgets.index', compact('budgets'));
         } catch (\Exception $e) {
@@ -20,6 +26,7 @@ class BudgetController extends Controller
             return redirect()->route('budgets.index')->with('error', 'Failed to fetch budgets.');
         }
     }
+    
 
     public function create()
     {
@@ -31,22 +38,36 @@ class BudgetController extends Controller
         try {
             $request->validate([
                 'total_amount' => 'required|numeric|min:0',
+                'expenses.*.amount' => 'required|numeric|min:0',
+                'expenses.*.description' => 'required|string|max:255',
             ]);
-
+    
+            // Create the budget
             $budget = Budget::create([
                 'total_amount' => $request->total_amount,
             ]);
-
+    
+        // Add expenses to the budget
+        if ($request->has('expenses')) {
+            foreach ($request->expenses as $expense) {
+                $budget->expenses()->create([
+                    'amount' => $expense['amount'],
+                    'description' => $expense['description'],
+                    'expense_category_id' => 1, // Assuming a default or pre-selected category
+                ]);
+            }
+        }
+    
             $budgetLogger = new BudgetLogDecorator($budget, $request);
-            $budgetLogger->logAction('Created', [
+            $budgetLogger->logAction('Created with expenses', [
                 'total_amount' => $budget->total_amount,
             ]);
-
-            return redirect()->route('budgets.index')->with('success', 'Budget created successfully.');
+    
+            return redirect()->route('budgets.index')->with('success', 'Budget and expenses created successfully.');
         } catch (\Exception $e) {
             $budgetLogger = new BudgetLogDecorator(null, $request);
-            $budgetLogger->logAction('Failed to Create Budget', ['error' => $e->getMessage()]);
-            return redirect()->back()->with('error', 'Failed to create budget.');
+            $budgetLogger->logAction('Failed to Create Budget with expenses', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Failed to create budget and expenses.');
         }
     }
 
@@ -58,48 +79,88 @@ class BudgetController extends Controller
     public function update(Request $request, Budget $budget)
     {
         try {
+            // Validate the request
             $request->validate([
                 'total_amount' => 'required|numeric|min:0',
+                'expenses.*.amount' => 'required|numeric|min:0',
+                'expenses.*.description' => 'required|string|max:255',
             ]);
-
-            $budget->total_amount = $request->total_amount;
-            $budget->save();
-
-            $budgetLogger = new BudgetLogDecorator($budget, $request);
-            $budgetLogger->logAction('Updated', [
-                'total_amount' => $budget->total_amount,
+    
+            // Update the budget
+            $budget->update([
+                'total_amount' => $request->total_amount,
             ]);
-
-            return redirect()->route('budgets.index')->with('success', 'Budget updated successfully.');
+    
+            // Get existing expense IDs
+            $existingExpenseIds = $budget->expenses->pluck('id')->toArray();
+    
+            // Loop through the expenses from the request
+            $updatedExpenseIds = [];
+            if ($request->has('expenses')) {
+                foreach ($request->expenses as $expenseData) {
+                    // If the expense ID is present, update it
+                    if (isset($expenseData['id'])) {
+                        $expense = Expense::find($expenseData['id']);
+                        if ($expense && $expense->budget_id == $budget->id) {
+                            $expense->update([
+                                'amount' => $expenseData['amount'],
+                                'description' => $expenseData['description'],
+                            ]);
+                            $updatedExpenseIds[] = $expense->id;
+                        }
+                    } else {
+                        // If it's a new expense, create it
+                        $budget->expenses()->create([
+                            'amount' => $expenseData['amount'],
+                            'description' => $expenseData['description'],
+                            'expense_category_id' => 1, // Default or selected category
+                        ]);
+                    }
+                }
+            }
+    
+            // Delete expenses that are not in the updated list
+            $expensesToDelete = array_diff($existingExpenseIds, $updatedExpenseIds);
+            if (!empty($expensesToDelete)) {
+                Expense::whereIn('id', $expensesToDelete)->delete();
+            }
+    
+            return redirect()->route('budgets.index')->with('success', 'Budget and expenses updated successfully.');
         } catch (\Exception $e) {
-            $budgetLogger = new BudgetLogDecorator(null, $request);
-            $budgetLogger->logAction('Failed to Update Budget', ['error' => $e->getMessage()]);
-            return redirect()->back()->with('error', 'Failed to update budget.');
+            return redirect()->back()->with('error', 'Failed to update budget and expenses.');
         }
     }
+    
+    
 
-    public function destroy(Budget $budget , Request $request)
+    public function destroy(Budget $budget, Request $request)
     {
         try {
+            // Check if the budget is associated with projects
             if ($budget->projects()->exists()) {
                 $budgetLogger = new BudgetLogDecorator(null, $request);
                 $budgetLogger->logAction('Failed to Delete Budget', ['error' => 'Attempts to delete budget while it is currently assigned to projects']);
                 return redirect()->route('budgets.index')->with('error', 'Cannot delete budget; it is currently assigned to projects.');
             }
-
+    
+            // Delete all associated expenses
+            $budget->expenses()->delete();
+    
+            // Delete the budget
             $budget->delete();
-
-            $budgetLogger = new BudgetLogDecorator($budget, $request);
+    
+            $budgetLogger = new BudgetLogDecorator(null, $request);
             $budgetLogger->logAction('Deleted', [
                 'total_amount' => $budget->total_amount,
             ]);
-
-            return redirect()->route('budgets.index')->with('success', 'Budget deleted successfully.');
+    
+            return redirect()->route('budgets.index')->with('success', 'Budget and associated expenses deleted successfully.');
         } catch (\Exception $e) {
             $budgetLogger = new BudgetLogDecorator(null, $request);
             $budgetLogger->logAction('Failed to Delete Budget', ['error' => $e->getMessage()]);
             return redirect()->route('budgets.index')->with('error', 'Failed to delete budget.');
         }
     }
+    
 
 }
