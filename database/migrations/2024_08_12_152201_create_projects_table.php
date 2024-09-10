@@ -15,6 +15,7 @@ return new class () extends Migration {
             $table->string('name');
             $table->text('description')->nullable();
             $table->foreignId('budget_id')->constrained();
+            $table->enum('status', ['in-progress', 'completed'])->default('in-progress');
             $table->timestamps();
             $table->timestamp('completed_at')->nullable();
         });

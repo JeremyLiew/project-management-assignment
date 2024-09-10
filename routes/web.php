@@ -39,7 +39,6 @@ Route::controller(LoginRegisterController::class)->group(function () {
     Route::post('/store', 'store')->name('store');
     Route::get('/', 'login')->name('login');
     Route::post('/authenticate', 'authenticate')->name('authenticate');
-
     Route::post('/logout', 'logout')->name('logout');
     Route::get('/create-users', 'createUsers')->name('createUsers');
 });
@@ -60,6 +59,7 @@ Route::group(['middleware' => ['isAdmin']], function () {
     Route::get('/admin/routes', function () {
         return view('dashboard.admin');
     });
+    Route::get('/projects/index', [ProjectController::class, 'getInProgressProjects']);
 
     Route::resource('logs', LogController::class);
 });
@@ -68,6 +68,7 @@ Route::group(['middleware' => ['isManager']], function () {
     Route::get('/manager/routes', function () {
         return view('dashboard.manager');
     });
+    Route::get('/projects/index', [ProjectController::class, 'getInProgressProjects']);
 });
 
 Route::controller(DashboardController::class)->group(function () {
