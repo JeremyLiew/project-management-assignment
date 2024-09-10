@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Log; 
 use App\Decorators\BudgetLogDecorator;
 use App\Models\Budget;
 use App\Models\Expense;
@@ -11,6 +12,8 @@ class BudgetController extends Controller
 {
     public function index(Request $request)
     {
+        $email = $request->session()->get('user_email');
+
         $budgetLogger = new BudgetLogDecorator(null, $request);
         try {
             $budgets = Budget::with('expenses')->get(); // Eager load expenses
