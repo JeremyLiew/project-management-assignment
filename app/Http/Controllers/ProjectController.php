@@ -8,8 +8,10 @@ use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Models\Budget;
 use App\Models\Project;
 use App\Models\User;
+use DOMDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use XSLTProcessor;
 
 class ProjectController extends Controller {
 
@@ -50,11 +52,10 @@ class ProjectController extends Controller {
             }
 
             // Load the XSLT file for transforming the XML
-            $xsltProcessor = new \XSLTProcessor();
-            $xslt = new \DOMDocument;
-            $xslt->load('path/to/project_transform.xslt');
+            $xsltProcessor = new XSLTProcessor();
+            $xslt = new DOMDocument();
+            $xslt->load(public_path('xslt/project_transform.xsl'));
             $xsltProcessor->importStylesheet($xslt);
-
             $xmlDom->loadXML($xml->asXML());
 
             $transformedXml = $xsltProcessor->transformToXML($xmlDom);
