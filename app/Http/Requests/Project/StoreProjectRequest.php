@@ -4,24 +4,38 @@ namespace App\Http\Requests\Project;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreProjectRequest extends FormRequest
-{
+class StoreProjectRequest extends FormRequest {
 
-    public function rules()
-    {
-        return [
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'budget_id' => 'required|exists:budgets,id',
-            'members' => 'required|array',
-            'members.*' => 'exists:users,id',
-            'roles' => 'required|array',
-            'roles.*' => 'in:Junior,Senior,Project Manager',
-        ];
+    protected function prepareForValidation() {
+        $this->merge([
+            'roles' => $this->roles ?? [],
+            'members' => $this->members ?? [],
+        ]);
     }
 
-    public function messages()
-    {
+    public function rules() {
+        $user = auth()->user();
+
+        if ($user && ($user->role == 'admin' || $user->role == 'manager')) {
+            return [
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'budget_id' => 'required|exists:budgets,id',
+                'members' => 'required|array',
+                'members.*' => 'exists:users,id',
+                'roles' => 'required|array',
+                'roles.*' => 'in:Junior,Senior,Project Manager',
+            ];
+        } else {
+            return [
+                'name' => 'required|string|max:255',
+                'description' => 'nullable|string',
+                'budget_id' => 'required|exists:budgets,id',
+            ];
+        }
+    }
+
+    public function messages() {
         return [
             'members.*.exists' => 'One or more members do not exist.',
             'roles.*.in' => 'Invalid role specified.',
