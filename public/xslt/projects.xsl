@@ -29,7 +29,19 @@
                             </td>
                             <td>$<xsl:value-of select="budget"/></td>
                             <td>
-                                <xsl:value-of select="status"/>
+                                <xsl:choose>
+                                    <xsl:when test="status = 'completed'">
+                                        <span class="badge badge-success">
+                                            <xsl:value-of select="status"/>
+                                        </span>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <span class="badge badge-warning">
+                                            <xsl:value-of select="status"/>
+                                        </span>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                                        
                             </td>
                         </tr>
                     </xsl:for-each>
