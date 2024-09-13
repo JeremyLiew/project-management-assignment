@@ -74,3 +74,9 @@ Route::controller(DashboardController::class)->group(function () {
     Route::get('/individual-reports', 'getIndividualReports')->name('individual.reports');
     Route::get('/team-report', 'getTeamReport')->name('team.report');
 });
+
+Route::get('/home', function () {
+    return view('home');
+})->name('home');
+
+Route::get('/change-language/{language}', [LanguageController::class, 'changeLanguage']);

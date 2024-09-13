@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mt-5">
+<div class="container mt-1">
     <h1>Project Management</h1>
 
     <!-- Flash messages -->
@@ -13,7 +13,7 @@
 
     <!-- Project Listing -->
     <div class="card mt-4">
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
             <h3 class="card-title">Projects</h3>
             <a href="{{ route('projects.create') }}" class="btn btn-primary float-right">Create New Project</a>
         </div>
@@ -69,40 +69,33 @@
     <!-- Additional In-Progress Projects for Admin/Manager -->
     @if (auth()->user()->role === 'admin' || auth()->user()->role === 'manager')
     <div class="card mt-4">
-        {!! $HTML !!}
-        <div class="card-header">
-            <h3 class="card-title">Completed Projects</h3>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">Projects List</h3>
+            <select id="project-status" class="form-select w-auto">
+                <option value="" disabled selected>STATUS</option>
+                <option value="all">ALL</option>
+                <option value="completed">COMPLETED</option>
+                <option value="inprogress">IN-PROGRESS</option>
+            </select>
         </div>
-        <div class="card-body">
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Budget</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($html as $project)
-                    <tr>
-                        <td>{{ $project->id }}</td>
-                        <td>{{ $project->name }}</td>
-                        <td>{{ $project->description }}</td>
-                        <td>${{ number_format($project->budget->total_amount ?? 0, 2) }}</td>
-                        <td>
-                            <span class="badge badge-{{ $project->status === 'completed' ? 'success' : 'warning' }}">
-                                {{ $project->status }}
-                            </span>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            {!! $HTMLs !!}
+        <div id="projects-table">
         </div>
     </div>
+
+    <script>
+        document.getElementById('project-status').addEventListener('change', function () {
+            let status = this.value;
+            let tableBody = document.querySelector('#projects-table');
+
+            if (status === 'all') {
+                tableBody.innerHTML = `{!! $xslt !!}`;
+            } else if (status === 'completed') {
+                tableBody.innerHTML = `{!! $complete !!}`;
+            } else if (status === 'inprogress') {
+                tableBody.innerHTML = `{!! $inprogress !!}`;
+            }
+        });
+    </script>
     @endif
 </div>
 @endsection
