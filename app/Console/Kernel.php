@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             try {
                 $tasks = Task::where('due_date', '<', now())
-                            //  ->whereNull('completed_at')
+                             ->where('status', '!=', 'Completed')
                              ->get();
                 foreach ($tasks as $task) {
                     Mail::to($task->user->email)->send(new TaskOverdue($task));
