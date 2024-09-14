@@ -83,7 +83,7 @@
         </div>
         <input type="text" id="am-search-input" class="form-control w-auto" placeholder="Search projects...">
         <div id="search-results" class="card-body">
-            <div id="am-projects-table" class="table table-bordered">
+            <div id="am-projects-table" class="table">
             </div>
         </div>
     </div>
@@ -92,6 +92,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function () {
+    // Function to filter the table rows based on search input
     function filterTable(tableId, inputId) {
         $(inputId).on('input', function () {
             var searchText = $(this).val().toLowerCase();
@@ -106,12 +107,31 @@ $(document).ready(function () {
         });
     }
 
-    // Filter user projects table
-    filterTable('#user-projects-table', '#search-input');
+    // Perform an AJAX search for the user projects table
+    $('#search-input').on('input', function () {
+        var query = $(this).val();
+        $.ajax({
+            url: 'http://localhost:5018/api/projects/search',
+            method: 'GET',
+            data: {query: query},
+            success: function (data) {
+                var resultsHtml = '<table class="table table-bordered"><thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Budget</th><th>Status</th></tr></thead><tbody>';
+                data.forEach(function (project) {
+                    resultsHtml += '<tr><td>' + project.id + '</td><td>' + project.name + '</td><td>' + project.description + '</td><td>$' + project.budget.toFixed(2) + '</td><td>' + project.status + '</td></tr>';
+                });
+                resultsHtml += '</tbody></table>';
+                $('#search-results').html(resultsHtml);
 
-    // Filter admin/manager projects table
-    filterTable('#am-projects-table', '#am-search-input');
+                // Reapply table filtering after results update
+                filterTable('#user-projects-table', '#search-input');
+            },
+            error: function (xhr, status, error) {
+                console.error('Error searching projects:', error);
+            }
+        });
+    });
 
+    // Handle the project status filter for Admin/Manager
     $('#project-status').on('change', function () {
         let status = this.value;
         let tableBody = document.querySelector('#am-projects-table');
@@ -119,8 +139,9 @@ $(document).ready(function () {
         // Clear the search input
         $('#am-search-input').val('');
 
+        // Update the table content based on status
         if (status === 'all') {
-            tableBody.innerHTML = `{!! $xslt !!}`;
+            tableBody.innerHTML = `{!! $xslt !!}`;  // Use server-rendered content
         } else if (status === 'completed') {
             tableBody.innerHTML = `{!! $complete !!}`;
         } else if (status === 'inprogress') {
@@ -130,8 +151,13 @@ $(document).ready(function () {
         // Re-apply filter to the new content
         filterTable('#am-projects-table', '#am-search-input');
     });
+
+    // Initially apply the filter to both tables
+    filterTable('#user-projects-table', '#search-input');
+    filterTable('#am-projects-table', '#am-search-input');
 });
 </script>
+
 @endif
 </div>
 @endsection
