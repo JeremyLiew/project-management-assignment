@@ -88,6 +88,7 @@
         </div>
     </div>
 </div>
+@endif
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -116,14 +117,16 @@ $(document).ready(function () {
             data: {query: query},
             success: function (data) {
                 var resultsHtml = '<table class="table table-bordered"><thead><tr><th>ID</th><th>Name</th><th>Description</th><th>Budget</th><th>Status</th></tr></thead><tbody>';
-                data.forEach(function (project) {
-                    resultsHtml += '<tr><td>' + project.id + '</td><td>' + project.name + '</td><td>' + project.description + '</td><td>$' + project.budget.toFixed(2) + '</td><td>' + project.status + '</td></tr>';
-                });
+                // Ensure data is an array of projects
+                if (Array.isArray(data)) {
+                    data.forEach(function (project) {
+                        resultsHtml += '<tr><td>' + project.id + '</td><td>' + project.name + '</td><td>' + project.description + '</td><td>$' + (project.budget || 0).toFixed(2) + '</td><td>' + project.status + '</td></tr>';
+                    });
+                } else {
+                    resultsHtml += '<tr><td colspan="5">No results found</td></tr>';
+                }
                 resultsHtml += '</tbody></table>';
                 $('#search-results').html(resultsHtml);
-
-                // Reapply table filtering after results update
-                filterTable('#user-projects-table', '#search-input');
             },
             error: function (xhr, status, error) {
                 console.error('Error searching projects:', error);
@@ -157,7 +160,5 @@ $(document).ready(function () {
     filterTable('#am-projects-table', '#am-search-input');
 });
 </script>
-
-@endif
 </div>
 @endsection
