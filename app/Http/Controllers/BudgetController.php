@@ -81,6 +81,8 @@ class BudgetController extends Controller
 
     public function update(Request $request, Budget $budget)
     {
+        $logDecorator = new BudgetLogDecorator($budget, $request);
+
         try {
             // Validate the request
             $request->validate([
@@ -88,17 +90,16 @@ class BudgetController extends Controller
                 'expenses.*.amount' => 'required|numeric|min:0',
                 'expenses.*.description' => 'required|string|max:255',
             ]);
-    
-            // Update the budget
-            $budget->update([
-                'total_amount' => $request->total_amount,
-            ]);
-    
+
             // Get existing expense IDs
             $existingExpenseIds = $budget->expenses->pluck('id')->toArray();
-    
+
             // Loop through the expenses from the request
             $updatedExpenseIds = [];
+            $newExpenses = [];
+            $updatedExpenses = [];
+            $deletedExpenses = [];
+
             if ($request->has('expenses')) {
                 foreach ($request->expenses as $expenseData) {
                     // If the expense ID is present, update it
@@ -110,31 +111,47 @@ class BudgetController extends Controller
                                 'description' => $expenseData['description'],
                             ]);
                             $updatedExpenseIds[] = $expense->id;
+                            $updatedExpenses[] = $expenseData;
                         }
                     } else {
                         // If it's a new expense, create it
-                        $budget->expenses()->create([
+                        $newExpense = $budget->expenses()->create([
                             'amount' => $expenseData['amount'],
                             'description' => $expenseData['description'],
                             'expense_category_id' => 1, // Default or selected category
                         ]);
+                        $newExpenses[] = $newExpense;
                     }
                 }
             }
-    
+
             // Delete expenses that are not in the updated list
             $expensesToDelete = array_diff($existingExpenseIds, $updatedExpenseIds);
             if (!empty($expensesToDelete)) {
+                $deletedExpenses = Expense::whereIn('id', $expensesToDelete)->get();
                 Expense::whereIn('id', $expensesToDelete)->delete();
             }
-    
+
+            // Log the consolidated update details
+            $logDecorator->logAction('Updated', [
+                'budget_id' => $budget->id,
+                'total_amount' => $request->total_amount,
+                'new_expenses' => $newExpenses,
+                'updated_expenses' => $updatedExpenses,
+                'deleted_expenses' => $deletedExpenses,
+            ]);
+
             return redirect()->route('budgets.index')->with('success', 'Budget and expenses updated successfully.');
         } catch (\Exception $e) {
+            // Log the failure
+            $logDecorator->logAction('Failed to Update Budget', [
+                'budget_id' => $budget->id,
+                'error' => $e->getMessage(),
+            ]);
+
             return redirect()->back()->with('error', 'Failed to update budget and expenses.');
         }
     }
-    
-    
 
     public function destroy(Budget $budget, Request $request)
     {
