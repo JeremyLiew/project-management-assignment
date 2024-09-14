@@ -28,10 +28,13 @@ class AuthLogDecorator extends LogDecorator
             case 'Login Successful':
             case 'Registration Successful':
             case 'Logout Successful':
+            case 'Password Reset Requested':
+            case 'Password Reset Successful':
                 return 'INFO';
             case 'Login Failed':
             case 'Validation Failed':
             case 'Registration Failed':
+            case 'Invalid Password Reset Token':
                 return 'ERROR';
             default:
                 return 'DEBUG';

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Decorators\AuthLogDecorator;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use DB;
@@ -30,6 +31,9 @@ class ForgotPasswordController extends Controller
        */
       public function submitForgetPasswordForm(Request $request)
       {
+
+          $authLogger = new AuthLogDecorator($request);
+
           $request->validate([
               'email' => 'required|email|exists:users',
           ]);
@@ -46,6 +50,8 @@ class ForgotPasswordController extends Controller
               $message->to($request->email);
               $message->subject('Reset Password');
           });
+
+          $authLogger->logAction('Password Reset Requested', ['email' => $request->email]);
 
           return back()->with('message', 'We have e-mailed your password reset link!');
       }
@@ -65,6 +71,9 @@ class ForgotPasswordController extends Controller
        */
       public function submitResetPasswordForm(Request $request)
       {
+
+        $authLogger = new AuthLogDecorator($request);
+
           $request->validate([
               'email' => 'required|email|exists:users',
               'password' => 'required|string|min:6|confirmed',
@@ -79,6 +88,7 @@ class ForgotPasswordController extends Controller
                               ->first();
 
           if(!$updatePassword){
+            $authLogger->logAction('Invalid Password Reset Token', ['email' => $request->email, 'token' => $request->token]);
               return back()->withInput()->with('error', 'Invalid token!');
           }
 
@@ -87,6 +97,8 @@ class ForgotPasswordController extends Controller
 
           DB::table('password_resets')->where(['email'=> $request->email])->delete();
 
-          return redirect('/login')->with('message', 'Your password has been changed!');
+          $authLogger->logAction('Password Reset Successful', ['email' => $request->email]);
+
+          return redirect('/')->with('message', 'Your password has been changed!');
       }
 }
