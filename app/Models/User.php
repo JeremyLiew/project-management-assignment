@@ -83,7 +83,7 @@ class User extends Authenticatable {
      * The projects that belong to the user.
      */
     public function projects() {
-        return $this->belongsToMany(Project::class, 'project_user_mappings');
+        return $this->belongsToMany(Project::class, 'project_user_mappings')->withPivot('role');
     }
 
     /**

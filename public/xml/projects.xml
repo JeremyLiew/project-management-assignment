@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projects>
+    <project>
+        <id>1</id>
+        <name>Project Alpha</name>
+        <description>Description of Project Alpha</description>
+        <budget>15000.00</budget>
+        <status>completed</status>
+    </project>
+    <project>
+        <id>2</id>
+        <name>Project Beta</name>
+        <description>Description of Project Beta</description>
+        <budget>25000.00</budget>
+        <status>in-progress</status>
+    </project>
+    <project>
+        <id>3</id>
+        <name>Project Al</name>
+        <description>Description of Project Al</description>
+        <budget>5000.00</budget>
+        <status>completed</status>
+    </project>
+    <project>
+        <id>4</id>
+        <name>Project pha</name>
+        <description>Description of Project pha</description>
+        <budget>45000.00</budget>
+        <status>completed</status>
+    </project>
+    <project>
+        <id>5</id>
+        <name>Project Alpa</name>
+        <description>Description of Project Alpa</description>
+        <budget>35000.00</budget>
+        <status>in-progress</status>
+    </project>
+</projects>

@@ -104,6 +104,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     const projectSelect = document.getElementById('project_id');
     const userSelect = document.getElementById('user_id');
+    const dueDateInput = document.getElementById('due_date');
+
+    const today = new Date().toISOString().split('T')[0];
+    dueDateInput.setAttribute('min', today);
 
     function fetchUsers(projectId, selectedUserId = null) {
         if (!projectId) {
