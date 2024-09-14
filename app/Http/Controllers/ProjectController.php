@@ -282,12 +282,14 @@ class ProjectController extends Controller {
             $project = Project::findOrFail($id);
 
             $status = $request->has('status') ? 'Completed' : $project->status;
+            $completedAt = $status === 'Completed' ? now() : $project->completed_at;
 
             $project->update([
                 'name' => $request->input('name'),
                 'description' => $request->input('description'),
                 'budget_id' => $request->input('budget_id'),
                 'status' => $status,
+                'completed_at' => $completedAt,
             ]);
 
             $project->users()->detach();
