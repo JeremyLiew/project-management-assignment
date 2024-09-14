@@ -19,23 +19,53 @@ class ProjectController extends Controller {
 
     public function index(Request $request) {
         $projectLogger = new ProjectLogDecorator(null, $request);
-        try {
-            $projects = Project::with('budget')->get();
-            $projectLogger->logAction('Fetched Projects Data', ['status' => '200']);
 
-            if (auth()->user()->role === 'admin' || auth()->user()->role === 'manager') {
+        try {
+            // Get the logged-in user
+            $user = auth()->user();
+
+            if ($user->role === 'admin' || $user->role === 'manager') {
+                // Admins and managers can see all projects
+                $projects = Project::with('budget', 'creator')->get();
+
+                // Get additional project data for admins and managers
                 $xslt = $this->xslt();
                 $complete = $this->getCompletedProjects();
                 $inprogress = $this->getInProgressProjects();
             } else {
+                // Regular users can see their own projects and assigned projects
+                $userProjects = $this->getUserProjects($user);
+                $assignedProjects = $this->getAssignProjects($user);
+
+                // Merge and remove duplicates (if any)
+                $projects = $userProjects->merge($assignedProjects)->unique('id');
+
+                // Admin-specific data is not needed for regular users
                 $xslt = $complete = $inprogress = '';
             }
 
+            // Log successful action
+            $projectLogger->logAction('Fetched Projects Data', ['status' => '200']);
+
+            // Pass data to the view
             return view('projects.index', compact('projects', 'xslt', 'complete', 'inprogress'));
         } catch (\Exception $e) {
+            // Log error and redirect with error message
             $projectLogger->logAction('Failed to Fetch Projects', ['error' => $e->getMessage()]);
             return redirect()->route('projects.index')->with('error', 'Failed to fetch projects.');
         }
+    }
+
+    private function getUserProjects($user) {
+        return Project::where('creator_id', $user->id)
+                        ->with('budget')
+                        ->get();
+    }
+
+    private function getAssignProjects($user) {
+        return Project::whereHas('users', function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                })->with('budget')->get();
     }
 
     public function xslt() {
@@ -211,7 +241,7 @@ class ProjectController extends Controller {
         // Return the transformed XML as HTML
         return $proc->transformToXML($filteredXmlDoc);
     }
-    
+
     public function store(StoreProjectRequest $request) {
         try {
             $validator = $request->validated();
@@ -226,6 +256,7 @@ class ProjectController extends Controller {
                         'name' => $request->input('name'),
                         'description' => $request->input('description'),
                         'budget_id' => $request->input('budget_id'),
+                        'creator_id' => auth()->id(),
             ]);
 
             $membersWithRoles = array_combine($request->members, $request->roles);
