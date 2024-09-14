@@ -39,7 +39,6 @@ Route::controller(LoginRegisterController::class)->group(function () {
     Route::post('/store', 'store')->name('store');
     Route::get('/', 'login')->name('login');
     Route::post('/authenticate', 'authenticate')->name('authenticate');
-
     Route::post('/logout', 'logout')->name('logout');
     Route::get('/create-users', 'createUsers')->name('createUsers');
 });
@@ -71,8 +70,7 @@ Route::group(['middleware' => ['isManager']], function () {
 });
 
 Route::controller(DashboardController::class)->group(function () {
-    Route::get('/dashboard', 'index')->name('dashboard');
-    Route::get('/projects-tasks', 'index')->name('projects.tasks');
-    Route::get('/individual-reports', 'getIndividualReports')->name('individual.reports');
-    Route::get('/team-report', 'getTeamReport')->name('team.report');
+    Route::get('/dashboard', 'index')->name('dashboard'); // Ensure this matches your route name
+    Route::get('/dashboard-individual_report', 'individual_report')->name('individual_report');
+    Route::get('/dashboard-team_report', 'team_report')->name('team_report');
 });
