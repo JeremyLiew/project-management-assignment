@@ -1,5 +1,7 @@
 <?php
+
 // Jeremy
+
 namespace App\Http\Controllers;
 
 use App\Decorators\AboutUsLogDecorator;
@@ -9,7 +11,7 @@ use Illuminate\Support\Facades\Http;
 
 class AboutUsController extends Controller
 {
-    private $apiUrl = 'http://localhost:8082/api/members';
+    private $apiUrl = 'http://localhost:8082/api/about-us';
 
     public function index(Request $request)
     {
