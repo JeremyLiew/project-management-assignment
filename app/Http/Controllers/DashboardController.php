@@ -11,11 +11,14 @@ use App\Models\Budget;
 use App\Services\DashboardService;
 use App\Strategies\BudgetUtilizationStrategy;
 use App\Strategies\CompletedTaskDataStrategy;
-use App\Strategies\GenerateXMLStrategy;
-use App\Strategies\TransformXMLStrategy;
 use App\Strategies\TeamTaskCompletionStrategy;
 use App\Strategies\TeamUserPerformanceStrategy;
 use App\Strategies\TeamBudgetUtilizationStrategy;
+use App\Strategies\ProjectStrategy;
+use App\Strategies\TaskStrategy;
+use App\Strategies\CompletedTasksStrategy;
+use App\Strategies\InProgressTasksStrategy;
+use App\Strategies\PendingTasksStrategy;
 use DOMDocument;
 use DOMXPath;
 use XSLTProcessor;
@@ -40,79 +43,97 @@ class DashboardController extends Controller
         $user = auth()->user();
         $projects = $user->projects;
 
-        $projectData = [];
-        foreach ($projects as $project) {
-            $budget = Budget::find($project->budget_id);
-            $totalCost = Task::where('project_id', $project->id)
-                ->whereNotNull('expense_id')
-                ->join('expenses', 'tasks.expense_id', '=', 'expenses.id')
-                ->sum('expenses.amount') ?? 0;
-    
-            $completionTime = $project->completed_at 
-                ? $project->created_at->diffInDays($project->completed_at) 
-                : ($project->due_date && $project->due_date->isPast() ? 'Expired' : 'In Progress');
-    
-            $tasksData = [];
-            foreach ($project->tasks as $task) {
-                $taskCost = $task->expense ? $task->expense->amount : 0;
-                $completionTime = null;
-                $status = '';
-    
-                $updatedDate = $task->updated_at->format('Y-m-d');
-                $dueDate = $task->due_date ? $task->due_date->format('Y-m-d') : null;
-                $createdDate = $task->created_at->format('Y-m-d');
-    
-                if ($task->status === 'Completed') {
-                    $completionTime = $task->created_at->diffInDays($task->updated_at);
-                    $status = ($dueDate && $updatedDate > $dueDate) ? 'Expired' : 'Completed';
-                } else {
-                    $currentDate = now()->format('Y-m-d');
-                    $status = ($dueDate && $currentDate > $dueDate) ? 'Expired' : $task->status;
-                    $completionTime = $task->created_at->diffInDays($task->updated_at);
-                }
-    
-                $tasksData[] = [
-                    'name' => $task->name,
-                    'cost' => $taskCost,
-                    'created_at' => $task->created_at,
-                    'due_date' => $task->due_date,
-                    'completionTime' => $completionTime,
-                    'status' => $status,
-                ];
-            }
-    
-            $projectData[] = [
-                'name' => $project->name,
-                'description' => $project->description,
-                'budget' => $budget,
-                'totalCost' => $totalCost,
-                'completionTime' => $completionTime,
-                'tasks' => $tasksData,
-            ];
-        }
+        $dashboardService = new DashboardService();
 
-        // Generate XML
-        $this->dashboardService->setStrategy(new GenerateXMLStrategy());
-        $xml = $this->dashboardService->executeStrategy(['projects' => $projectData]);
+        // Project XML generation
+        $dashboardService->setStrategy(new ProjectStrategy());
+        $projectXml = $dashboardService->executeStrategy($projects);
 
-        // Transform XML
-        $this->dashboardService->setStrategy(new TransformXMLStrategy());
-        $XMLOutput = $this->dashboardService->executeStrategy(['xml' => $xml]);
+        $projectXsl = new DOMDocument();
+        $projectXsl->load(public_path('xslt/dashboard_project.xsl'));
+        $projectProcessor = new XSLTProcessor();
+        $projectProcessor->importStylesheet($projectXsl);
+        $projectXMLOutput = $projectProcessor->transformToXml($projectXml);
+
+        // Task XML generation
+        $tasks = $projects->flatMap->tasks;
+        $dashboardService->setStrategy(new TaskStrategy());
+        $taskXml = $dashboardService->executeStrategy($tasks);
+
+        $taskXsl = new DOMDocument();
+        $taskXsl->load(public_path('xslt/dashboard_task.xsl'));
+        $taskProcessor = new XSLTProcessor();
+        $taskProcessor->importStylesheet($taskXsl);
+        $taskXMLOutput = $taskProcessor->transformToXml($taskXml);
+
+        // Fetching and transforming tasks with different statuses
+        $completedTasksXml = $this->getCompletedTasks();
+        $inProgressTasksXml = $this->getInProgressTasks();
+        $pendingTasksXml = $this->getPendingTasks();
 
         return view('dashboard.index', [
-            'XMLOutput' => $XMLOutput
+            'projectXMLOutput' => $projectXMLOutput,
+            'taskXMLOutput' => $taskXMLOutput,
+            'completedTasksXMLOutput' => $completedTasksXml,
+            'inProgressTasksXMLOutput' => $inProgressTasksXml,
+            'pendingTasksXMLOutput' => $pendingTasksXml,
         ]);
     }
 
+    protected function getCompletedTasks()
+    {
+        $dashboardService = new DashboardService();
+        $dashboardService->setStrategy(new CompletedTasksStrategy());
+
+        $completedTasks = Task::where('status', 'completed')->with('expense', 'project')->get();
+        $completedTasksXmlDoc = $dashboardService->executeStrategy($completedTasks);
+
+        $completedTasksXsl = new DOMDocument();
+        $completedTasksXsl->load(public_path('xslt/dashboard_task.xsl'));
+        $completedTasksProcessor = new XSLTProcessor();
+        $completedTasksProcessor->importStylesheet($completedTasksXsl);
+
+        return $completedTasksProcessor->transformToXml($completedTasksXmlDoc);
+    }
+
+    protected function getInProgressTasks()
+    {
+        $dashboardService = new DashboardService();
+        $dashboardService->setStrategy(new InProgressTasksStrategy());
+
+        $inProgressTasks = Task::where('status', 'in-progress')->with('expense', 'project')->get();
+        $inProgressTasksXmlDoc = $dashboardService->executeStrategy($inProgressTasks);
+
+        $inProgressTasksXsl = new DOMDocument();
+        $inProgressTasksXsl->load(public_path('xslt/dashboard_task.xsl'));
+        $inProgressTasksProcessor = new XSLTProcessor();
+        $inProgressTasksProcessor->importStylesheet($inProgressTasksXsl);
+
+        return $inProgressTasksProcessor->transformToXml($inProgressTasksXmlDoc);
+    }
+
+    protected function getPendingTasks()
+    {
+        $dashboardService = new DashboardService();
+        $dashboardService->setStrategy(new PendingTasksStrategy());
+
+        $pendingTasks = Task::where('status', 'pending')->with('expense', 'project')->get();
+        $pendingTasksXmlDoc = $dashboardService->executeStrategy($pendingTasks);
+
+        $pendingTasksXsl = new DOMDocument();
+        $pendingTasksXsl->load(public_path('xslt/dashboard_task.xsl'));
+        $pendingTasksProcessor = new XSLTProcessor();
+        $pendingTasksProcessor->importStylesheet($pendingTasksXsl);
+
+        return $pendingTasksProcessor->transformToXml($pendingTasksXmlDoc);
+    }
+    
     public function individual_report()
     {
         $user = auth()->user();
-        $projectIds = DB::table('project_user_mappings')
-        ->where('user_id', $user->id)
-        ->pluck('project_id');
-
+        $projects = $user->projects;
         $tasks = Task::where('user_id', $user->id)->get();
-        $projects = Project::whereIn('id', $projectIds)->get();
+
 
         $completedProjects = $projects->filter(function ($project) {
             return $project->completed_at !== null;
@@ -151,9 +172,7 @@ class DashboardController extends Controller
     public function team_report()
     {
         $user = auth()->user();
-        $tasks = Task::where('user_id', $user->id)->get();
-        $projectIds = $tasks->pluck('project_id')->unique();
-        $projects = Project::whereIn('id', $projectIds)->get();
+        $projects = $user->projects;
         $users = User::where('role', 'user')->get();
     
         return view('dashboard.team-report', compact(['projects','users']));
