@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projects>
+    <project>
+        <name>Project A</name>
+        <description>Project A description</description>
+        <budgetAmount>10000</budgetAmount>
+        <totalCost>7000</totalCost>
+        <Completion_project_time>30</Completion_project_time>
+        <role>admin</role> <!-- admin or manager role -->
+        <tasks>
+            <task>
+                <name>Task A1</name>
+                <cost>2000</cost>
+                <created_at>2024-08-01</created_at>
+                <due_date>2024-08-10</due_date>
+                <Completion_task_time>9</Completion_task_time>
+                <status>Completed</status>
+            </task>
+            <task>
+                <name>Task A2</name>
+                <cost>1500</cost>
+                <created_at>2024-08-03</created_at>
+                <due_date>2024-08-12</due_date>
+                <Completion_task_time>10</Completion_task_time>
+                <status>In Progress</status>
+            </task>
+        </tasks>
+    </project>
+</projects>

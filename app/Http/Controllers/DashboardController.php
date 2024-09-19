@@ -8,6 +8,14 @@ use App\Models\Task;
 use App\Models\Expense;
 use App\Models\User;
 use App\Models\Budget;
+use App\Services\DashboardService;
+use App\Strategies\BudgetUtilizationStrategy;
+use App\Strategies\CompletedTaskDataStrategy;
+use App\Strategies\GenerateXMLStrategy;
+use App\Strategies\TransformXMLStrategy;
+use App\Strategies\TeamTaskCompletionStrategy;
+use App\Strategies\TeamUserPerformanceStrategy;
+use App\Strategies\TeamBudgetUtilizationStrategy;
 use DOMDocument;
 use DOMXPath;
 use XSLTProcessor;
@@ -15,9 +23,12 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    protected $dashboardService;
     
-    public function __construct() {
+    public function __construct(DashboardService $dashboardService)
+    {
         $this->middleware('auth');
+        $this->dashboardService = $dashboardService;
     }
 
     public function adminHome() {
@@ -27,17 +38,13 @@ class DashboardController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $tasks = Task::where('user_id', $user->id)->get();
-        $projectIds = $tasks->pluck('project_id')->unique();
-        $projects = Project::whereIn('id', $projectIds)->get();
-    
-        $xml = new DOMDocument('1.0', 'UTF-8');
-        $projectsElement = $xml->createElement('projects');
-    
+        $projects = $user->projects;
+
+        $projectData = [];
         foreach ($projects as $project) {
             $budget = Budget::find($project->budget_id);
             $totalCost = Task::where('project_id', $project->id)
-                ->whereNotNull('expense_id') // Only join when expense_id is present
+                ->whereNotNull('expense_id')
                 ->join('expenses', 'tasks.expense_id', '=', 'expenses.id')
                 ->sum('expenses.amount') ?? 0;
     
@@ -45,13 +52,7 @@ class DashboardController extends Controller
                 ? $project->created_at->diffInDays($project->completed_at) 
                 : ($project->due_date && $project->due_date->isPast() ? 'Expired' : 'In Progress');
     
-            $projectElement = $xml->createElement('project');
-            $projectElement->appendChild($xml->createElement('name', htmlspecialchars($project->name ?? 'N/A')));
-            $projectElement->appendChild($xml->createElement('description', htmlspecialchars($project->description ?? 'N/A')));
-            $projectElement->appendChild($xml->createElement('budgetAmount', $budget->total_amount ?? 'N/A'));
-            $projectElement->appendChild($xml->createElement('totalCost', $totalCost));
-            $projectElement->appendChild($xml->createElement('Completion_project_time', $completionTime));
-    
+            $tasksData = [];
             foreach ($project->tasks as $task) {
                 $taskCost = $task->expense ? $task->expense->amount : 0;
                 $completionTime = null;
@@ -70,42 +71,53 @@ class DashboardController extends Controller
                     $completionTime = $task->created_at->diffInDays($task->updated_at);
                 }
     
-                $taskElement = $projectElement->appendChild($xml->createElement('task'));
-                $taskElement->appendChild($xml->createElement('name', htmlspecialchars($task->name ?? 'N/A')));
-                $taskElement->appendChild($xml->createElement('cost', $taskCost));
-                $taskElement->appendChild($xml->createElement('created_at', $task->created_at ? $task->created_at->format('Y-m-d') : 'N/A'));
-                $taskElement->appendChild($xml->createElement('due_date', $task->due_date ? $task->due_date->format('Y-m-d') : 'N/A'));
-                $taskElement->appendChild($xml->createElement('Completion_task_time', $completionTime));
-                $taskElement->appendChild($xml->createElement('status', htmlspecialchars($status)));
+                $tasksData[] = [
+                    'name' => $task->name,
+                    'cost' => $taskCost,
+                    'created_at' => $task->created_at,
+                    'due_date' => $task->due_date,
+                    'completionTime' => $completionTime,
+                    'status' => $status,
+                ];
             }
     
-            $projectsElement->appendChild($projectElement);
+            $projectData[] = [
+                'name' => $project->name,
+                'description' => $project->description,
+                'budget' => $budget,
+                'totalCost' => $totalCost,
+                'completionTime' => $completionTime,
+                'tasks' => $tasksData,
+            ];
         }
-    
-        $xml->appendChild($projectsElement);
-        $xsl = new DOMDocument();
-        $xsl->load(public_path('xslt/dashboard.xsl')); // Ensure the path is correct
-        $processor = new XSLTProcessor();
-        $processor->importStylesheet($xsl);
-        $XMLOutput = $processor->transformToXml($xml);
-        
+
+        // Generate XML
+        $this->dashboardService->setStrategy(new GenerateXMLStrategy());
+        $xml = $this->dashboardService->executeStrategy(['projects' => $projectData]);
+
+        // Transform XML
+        $this->dashboardService->setStrategy(new TransformXMLStrategy());
+        $XMLOutput = $this->dashboardService->executeStrategy(['xml' => $xml]);
+
         return view('dashboard.index', [
             'XMLOutput' => $XMLOutput
         ]);
-    } 
+    }
 
     public function individual_report()
     {
         $user = auth()->user();
+        $projectIds = DB::table('project_user_mappings')
+        ->where('user_id', $user->id)
+        ->pluck('project_id');
+
         $tasks = Task::where('user_id', $user->id)->get();
-        $projectIds = $tasks->pluck('project_id')->unique();
         $projects = Project::whereIn('id', $projectIds)->get();
-    
+
         $completedProjects = $projects->filter(function ($project) {
             return $project->completed_at !== null;
         })->count();
     
-        
         $inProgressProjects = $projects->count() - $completedProjects;
         $pendingTasks = $tasks->where('status', 'Pending')->count();
         $inProgressTasks = $tasks->where('status', 'In Progress')->count();
@@ -116,54 +128,76 @@ class DashboardController extends Controller
             'inProgressTasks' => $inProgressTasks,
             'completedTaskCount' => $completedTaskCount,
         ];
-    
-        $budgetUtilization = [];
-        foreach ($projects as $project) {
-            $budget = Budget::find($project->budget_id);
-            if ($budget) {
-                $totalBudget = $budget->total_amount;
-                $totalExpenses = Task::where('project_id', $project->id)
-                    ->join('expenses', 'tasks.expense_id', '=', 'expenses.id')
-                    ->sum('expenses.amount');
-                $utilizationPercentage = $totalBudget > 0 ? ($totalExpenses / $totalBudget) * 100 : 0;
-    
-                $budgetUtilization[] = [
-                    'projectName' => $project->name,
-                    'utilization' => $utilizationPercentage,
-                ];
-            }
-        }
 
-    
-        $completedTaskData = [];
-        foreach ($tasks as $task) {
-            if ($task->status === 'Completed') {
-                $hoursSpent = $task->created_at->diffInHours($task->updated_at);
-    
-                $completedTaskData[] = [
-                    'taskName' => $task->name,
-                    'hoursSpent' => $hoursSpent,
-                ];
-            }
-        }
+        // Budget Utilization
+        $this->dashboardService->setStrategy(new BudgetUtilizationStrategy());
+        $budgetUtilization = $this->dashboardService->executeStrategy(['projects' => $projects]);
 
-    
+        // Completed Task Data
+        $this->dashboardService->setStrategy(new CompletedTaskDataStrategy());
+        $completedTaskData = $this->dashboardService->executeStrategy(['tasks' => $tasks]);
+
         return view('dashboard.individual-report', compact(
             'completedProjects',
             'inProgressProjects',
             'taskStats',
             'budgetUtilization',
             'completedTaskData',
-            'projects'
+            'projects',
+            'tasks',
         ));
-    }    
+    }
 
-    
     public function team_report()
     {
-        
-
-        return view('dashboard.team-report');
+        $user = auth()->user();
+        $tasks = Task::where('user_id', $user->id)->get();
+        $projectIds = $tasks->pluck('project_id')->unique();
+        $projects = Project::whereIn('id', $projectIds)->get();
+        $users = User::where('role', 'user')->get();
+    
+        return view('dashboard.team-report', compact(['projects','users']));
     }
     
+    public function generateReport(Request $request)
+    {
+        // Get the project and user IDs from the form submission
+        $projectId = $request->input('project_id');
+        $userId = $request->input('user_id', auth()->id()); // Use the authenticated user's ID if none provided
+    
+        // Fetch the project and associated budget
+        $project = Project::findOrFail($projectId);
+        $budget = Budget::find($project->budget_id);
+        $expenses = Expense::where('budget_id', $project->budget_id)->get();
+    
+        // Data for the expenses chart
+        $expenseData = [
+            'labels' => $expenses->pluck('description')->toArray(),
+            'values' => $expenses->pluck('amount')->toArray(),
+        ];
+    
+        // Instantiate strategies
+        $budgetUtilizationStrategy = new TeamBudgetUtilizationStrategy();
+        $userPerformanceStrategy = new TeamUserPerformanceStrategy();
+        $taskCompletionStrategy = new TeamTaskCompletionStrategy();
+    
+        // Execute strategies
+        $budgetUtilization = $budgetUtilizationStrategy->execute($projectId, $userId);
+        $userPerformance = $userPerformanceStrategy->execute($projectId, $userId);
+        $taskCompletionData = $taskCompletionStrategy->execute($projectId, $userId);
+
+
+    
+        // Return a view with the data
+        return view('dashboard.show-report', [
+            'budgetUtilization' => $budgetUtilization,
+            'expenseData' => $expenseData,
+            'userPerformance' => $userPerformance,
+            'completionData' => $taskCompletionData,
+            'project' => $project,
+            'user' => User::find($userId),
+        ]);
+    }
+
+
 }

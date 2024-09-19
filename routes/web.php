@@ -70,7 +70,9 @@ Route::group(['middleware' => ['isManager']], function () {
 });
 
 Route::controller(DashboardController::class)->group(function () {
-    Route::get('/dashboard', 'index')->name('dashboard'); // Ensure this matches your route name
+    Route::get('/dashboard', 'index')->name('dashboard');
     Route::get('/dashboard-individual_report', 'individual_report')->name('individual_report');
     Route::get('/dashboard-team_report', 'team_report')->name('team_report');
+    Route::post('/dashboard/generate-report', 'generateReport')->name('report.generate');
 });
+
