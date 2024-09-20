@@ -17,6 +17,16 @@
         </div>
     @endif
 
+    <div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">Budget</h3>
+        <button id="fetch-data-btn" class="btn btn-primary">Fetch Budgets</button> <!-- Added button -->
+    </div>
+        <div id="search-results" class="card-body">
+            <!-- Results will be displayed here -->
+        </div>
+    </div>
+
     <!-- Budget Listing -->
     <div class="card mt-4">
         <div class="card-header">
@@ -70,4 +80,31 @@
         </div>
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$('#fetch-data-btn').on('click', function () {
+    $.ajax({
+        url: 'http://localhost:5194/api/budgets/display',  // Correct port and endpoint
+        method: 'GET',
+        success: function (data) {
+            var resultsHtml = '<table class="table table-bordered"><thead><tr><th>ID</th><th>Total Amount</th></tr></thead><tbody>';
+            if (Array.isArray(data)) {
+                data.forEach(function (budget) {
+                    resultsHtml += '<tr><td>' + budget.id + '</td><td>$' + (budget.total_amount || 0).toFixed(2) + '</td></tr>';
+                });
+            } else {
+                resultsHtml += '<tr><td colspan="2">No results found</td></tr>';
+            }
+            resultsHtml += '</tbody></table>';
+            $('#search-results').html(resultsHtml);
+        },
+        error: function (xhr, status, error) {
+            console.error('Error fetching budgets:', error);
+            $('#search-results').html('<p class="text-danger">Error fetching budget data</p>');
+        }
+    });
+});
+</script>
+
 @endsection

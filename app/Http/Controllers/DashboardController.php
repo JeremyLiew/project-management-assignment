@@ -205,8 +205,6 @@ class DashboardController extends Controller
         $userPerformance = $userPerformanceStrategy->execute($projectId, $userId);
         $taskCompletionData = $taskCompletionStrategy->execute($projectId, $userId);
 
-
-    
         // Return a view with the data
         return view('dashboard.show-report', [
             'budgetUtilization' => $budgetUtilization,
