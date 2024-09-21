@@ -1,5 +1,7 @@
 <?php
 
+/* @author Soo Yu Hung */
+
 namespace App\Http\Middleware;
 
 use Closure;

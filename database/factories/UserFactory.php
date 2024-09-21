@@ -1,22 +1,22 @@
 <?php
 
-namespace Database\Factories;
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/PHPClass.php to edit this template
+ */
 
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
+namespace App\Factories;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * Description of UserFactory
+ *
+ * @author Soo Yu Hung
  */
-class UserFactory extends Factory
-{
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
-    {
+use App\Models\User;
+
+class UserFactory {
+
+    public function definition(): array {
         return [
             'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
@@ -26,15 +26,27 @@ class UserFactory extends Factory
         ];
     }
 
-    /**
-     * Indicate that the model's email address should be unverified.
-     *
-     * @return $this
-     */
-    public function unverified(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+    public function unverified(): static {
+        return $this->state(fn(array $attributes) => [
+                    'email_verified_at' => null,
         ]);
+    }
+
+    public static function createUser($type) {
+        $user = new User();
+
+        switch ($type) {
+            case 'admin':
+                $user->role = 'admin';
+                break;
+            case 'manager':
+                $user->role = 'manager';
+                break;
+            default:
+                $user->role = 'user';
+                break;
+        }
+
+        return $user;
     }
 }
