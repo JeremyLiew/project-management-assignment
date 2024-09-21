@@ -8,6 +8,7 @@ use App\Decorators\AboutUsLogDecorator;
 use App\Http\Requests\AboutUs\GetMembersRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Client\ConnectionException; // Import this class for handling connection exceptions.
 
 class AboutUsController extends Controller
 {
@@ -15,22 +16,28 @@ class AboutUsController extends Controller
 
     public function index(Request $request)
     {
-        $response = $this->fetchAboutUsData();
         $logDecorator = new AboutUsLogDecorator($request);
+        try {
+            $response = $this->fetchAboutUsData();
 
-        if ($response->successful()) {
-            $result = $response->json();
-            $logDecorator->logAction('Fetched About Us Data', ['status' => $result['status']]);
+            if ($response->successful()) {
+                $result = $response->json();
+                $logDecorator->logAction('Fetched About Us Data', ['status' => $result['status']]);
 
-            if ($result['status'] == 200) {
-                return $this->renderView($result['data']);
+                if ($result['status'] == 200) {
+                    return $this->renderView($result['data']);
+                } else {
+                    $logDecorator->logAction('Fetch Error', ['status_message' => $result['status_message']]);
+                    return $this->renderErrorView($result['status_message']);
+                }
             } else {
-                $logDecorator->logAction('Fetch Error', ['status_message' => $result['status_message']]);
-                return $this->renderErrorView($result['status_message']);
+                $logDecorator->logAction('Fetch Failure', ['error' => 'Failed to fetch data from API.']);
+                return $this->renderErrorView('Failed to fetch data from API.');
             }
-        } else {
-            $logDecorator->logAction('Fetch Failure', ['error' => 'Failed to fetch data from API.']);
-            return $this->renderErrorView('Failed to fetch data from API.');
+        } catch (ConnectionException $e) {
+            // Log the connection error and redirect to an error view.
+            $logDecorator->logAction('Connection Error', ['error' => $e->getMessage()]);
+            return $this->renderServiceUnavailableView();
         }
     }
 
@@ -86,6 +93,13 @@ class AboutUsController extends Controller
 
     private function renderErrorView($errorMessage)
     {
-        return view('aboutus.index', ['error' => $errorMessage]);
+        return view('errors.service_unavailable', ['message' => $errorMessage]);
+    }
+
+    private function renderServiceUnavailableView()
+    {
+        return view('errors.service_unavailable', [
+            'message' => 'The About Us service is currently unavailable. Please try again later.'
+        ]);
     }
 }

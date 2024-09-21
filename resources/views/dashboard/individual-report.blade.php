@@ -213,8 +213,6 @@
         var labelsUser = userPerformanceData.map(data => data.taskName);
         var dataUser = userPerformanceData.map(data => data.hoursSpent);
 
-        console.log('Labels:', labelsUser);
-        console.log('Data:', dataUser);
         new Chart(ctxUser, {
             type: 'bar',
             data: {

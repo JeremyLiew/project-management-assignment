@@ -96,10 +96,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var labelsUser = userPerformanceData.userName;
     var dataUser = userPerformanceData.values;
 
-    console.log(userPerformanceData);
-    console.log('Labels:', userPerformanceData.data[3]);
-    console.log('Data:', dataUser);
-
     var teamUserPerformanceChart = new Chart(ctxTeamUserPerformance, {
         type: 'bar',
         data: {
