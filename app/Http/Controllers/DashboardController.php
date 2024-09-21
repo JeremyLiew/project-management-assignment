@@ -70,6 +70,7 @@ class DashboardController extends Controller
         $taskProcessor->importStylesheet($taskXsl);
         $taskXMLOutput = $taskProcessor->transformToXml($taskXml);
 
+
         // Fetching and transforming tasks with different statuses
         $completedTasksXml = $this->getCompletedTasks();
         $inProgressTasksXml = $this->getInProgressTasks();

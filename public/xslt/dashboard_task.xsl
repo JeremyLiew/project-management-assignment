@@ -20,7 +20,6 @@
                         <thead>
                             <tr>
                                 <th>Task Name</th>
-                                <th>Project</th>
                                 <th>Task Cost</th>
                                 <th>Created Date</th>
                                 <th>Due Date</th>
@@ -40,7 +39,6 @@
     <xsl:template match="task">
         <tr>
             <td><xsl:value-of select="name" /></td>
-            <td><xsl:value-of select="../name" /></td>
             <td><xsl:value-of select="cost" /></td>
             <td><xsl:value-of select="created_at" /></td>
             <td><xsl:value-of select="due_date" /></td>
