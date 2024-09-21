@@ -41,30 +41,34 @@
                                 <div class="card-body">
                                     <form id="projectSelectorForm" action="{{ route('report.generate') }}" method="POST">
                                         @csrf
-                                        @if (in_array($userRole, $allowedRoles))
-                                            <!-- User Selection Dropdown -->
-                                            <div class="mb-3">
-                                                <label for="userSelect" class="form-label">Choose a User</label>
-                                                <select id="userSelect" class="form-select" name="user_id">
-                                                    <option value="">Select a User</option>
-                                                        <option value="1">Whole project</option>
-                                                    @foreach($users as $user)
-                                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        @endif
                                         
                                         <!-- Project Selection Dropdown -->
-                                        <div class="mb-3">
-                                            <label for="projectSelect" class="form-label">Choose a Project</label>
-                                            <select id="projectSelect" class="form-select" name="project_id">
+                                        <div class="form-group mb-3">
+                                            <label for="project_id">Select Project</label>
+                                            <select name="project_id" id="project_id" class="form-control" required>
                                                 <option value="">Select a Project</option>
                                                 @foreach($projects as $project)
                                                     <option value="{{ $project->id }}">{{ $project->name }}</option>
                                                 @endforeach
                                             </select>
+                                            @error('project_id')
+                                                <div class="text-danger">{{ $message }}</div>
+                                            @enderror
                                         </div>
+
+                                        @if (in_array($userRole, $allowedRoles))
+                                            <!-- User Selection Dropdown for Admin/Manager -->
+                                            <div class="form-group mb-3">
+                                                <label for="user_id">Select User</label>
+                                                <select name="user_id" id="user_id" class="form-control" required>
+                                                    <option value="">Choose User</option>
+                                                </select>
+                                                @error('user_id')
+                                                    <div class="text-danger">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        @endif
+
                                         <button type="submit" class="btn btn-primary">View Report</button>
                                     </form>
                                 </div>
@@ -83,9 +87,50 @@
 
 <!-- Include Chart.js library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const projectSelect = document.getElementById('project_id');
+    const userSelect = document.getElementById('user_id');
 
+    function fetchUsers(projectId, selectedUserId = null) {
+        if (!projectId) {
+            userSelect.innerHTML = '<option value="">Choose User</option>';
+            return;
+        }
+
+        axios.get(`/dashboard/${projectId}/users`)
+            .then(response => {
+                if (response.data.success) {
+                    let options = '<option value="">Choose User</option>';
+                    options += '<option value="1">Whole Team</option>';
+                    response.data.users.forEach(user => {
+                        const selected = selectedUserId && user.id == selectedUserId ? 'selected' : '';
+                        options += `<option value="${user.id}" ${selected}>${user.name}</option>`;
+                    });
+                    userSelect.innerHTML = options;
+                } else {
+                    alert(response.data.message || 'Failed to fetch users.');
+                    userSelect.innerHTML = '<option value="">Choose User</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching users:', error);
+                alert('An error occurred while fetching users.');
+                userSelect.innerHTML = '<option value="">Choose User</option>';
+            });
+    }
+
+    projectSelect.addEventListener('change', function() {
+        const selectedProjectId = this.value;
+        fetchUsers(selectedProjectId);
+    });
+
+    @if(old('project_id'))
+        fetchUsers("{{ old('project_id') }}", "{{ old('user_id') }}");
+    @endif
+});
 </script>
 
 @endsection
