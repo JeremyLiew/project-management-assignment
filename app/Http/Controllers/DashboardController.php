@@ -172,10 +172,44 @@ class DashboardController extends Controller
     public function team_report()
     {
         $user = auth()->user();
-        $projects = $user->projects;
-        $users = User::where('role', 'user')->get();
     
-        return view('dashboard.team-report', compact(['projects','users']));
+        // Check if the authenticated user is a manager or admin
+        if ($user->role === 'manager' || $user->role === 'admin') {
+            // Get all users with the role 'user'
+            $users = User::where('role', 'user')->get();
+    
+            // Retrieve all projects that are associated with users who have the 'user' role
+            $projects = Project::whereHas('users', function ($query) {
+                $query->where('users.role', 'user');
+            })->get();
+        } else {
+            // For other roles, get only the user's own projects
+            $projects = $user->projects;
+    
+            // Get users with the role 'user'
+            $users = User::where('role', 'user')->get();
+        }
+    
+        return view('dashboard.team-report', compact(['projects', 'users']));
+    }
+    
+    public function getProjectUsers($projectId)
+    {
+        $project = Project::find($projectId);
+    
+        if (!$project) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Project not found'
+            ], 404);
+        }
+    
+        $users = $project->users;
+    
+        return response()->json([
+            'success' => true,
+            'users' => $users
+        ]);
     }
     
     public function generateReport(Request $request)

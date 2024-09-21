@@ -93,19 +93,18 @@ document.addEventListener('DOMContentLoaded', function () {
     var ctxTeamUserPerformance = document.getElementById('teamUserPerformanceChart').getContext('2d');
     var userPerformanceData = @json($userPerformance);
 
-    var labelsUser = userPerformanceData.userName;
-    var dataUser = userPerformanceData.values;
+    var labelsUser = userPerformanceData.map(item => item.userName);
+    var dataUser = userPerformanceData.map(item => item.timeSpent);
 
-    console.log(userPerformanceData);
-    console.log('Labels:', userPerformanceData.data[3]);
-    console.log('Data:', dataUser);
+    console.log(labelsUser);
+    console.log(dataUser);
 
     var teamUserPerformanceChart = new Chart(ctxTeamUserPerformance, {
         type: 'bar',
         data: {
             labels: labelsUser,
             datasets: [{
-                label: 'Time Spent (hours)',
+                label: 'Time Spent (minutes)',
                 data: dataUser,
                 backgroundColor: 'rgba(255, 159, 64, 0.5)',
                 borderColor: 'rgba(255, 159, 64, 1)',
@@ -191,6 +190,5 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
-
 </script>
 @endsection
