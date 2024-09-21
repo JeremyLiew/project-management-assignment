@@ -8,7 +8,7 @@ use App\Decorators\AboutUsLogDecorator;
 use App\Http\Requests\AboutUs\GetMembersRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\ConnectionException; // Import this class for handling connection exceptions.
+use Illuminate\Http\Client\ConnectionException;
 
 class AboutUsController extends Controller
 {
