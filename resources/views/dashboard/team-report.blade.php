@@ -34,14 +34,14 @@
                             <div class="card">
                                 <div class="card-header">Select Project</div>
                                 @php
-                                    $userRole = auth()->user()->role; // Assuming 'role' is the column for user roles
+                                    $userRole = auth()->user()->role;
                                     $allowedRoles = ['admin', 'manager'];
                                 @endphp
 
                                 <div class="card-body">
                                     <form id="projectSelectorForm" action="{{ route('report.generate') }}" method="POST">
                                         @csrf
-                                        
+
                                         <!-- Project Selection Dropdown -->
                                         <div class="form-group mb-3">
                                             <label for="project_id">Select Project</label>
