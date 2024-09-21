@@ -106,7 +106,7 @@ class DashboardController extends Controller
         $dashboardService = new DashboardService();
         $dashboardService->setStrategy(new InProgressTasksStrategy());
 
-        $inProgressTasks = Task::where('status', 'in-progress')->with('expense', 'project')->get();
+        $inProgressTasks = Task::where('status', 'in progress')->with('expense', 'project')->get();
         $inProgressTasksXmlDoc = $dashboardService->executeStrategy($inProgressTasks);
 
         $inProgressTasksXsl = new DOMDocument();
