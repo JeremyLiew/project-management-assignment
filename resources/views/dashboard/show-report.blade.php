@@ -96,9 +96,6 @@ document.addEventListener('DOMContentLoaded', function () {
     var labelsUser = userPerformanceData.map(item => item.userName);
     var dataUser = userPerformanceData.map(item => item.timeSpent);
 
-    console.log(labelsUser);
-    console.log(dataUser);
-
     var teamUserPerformanceChart = new Chart(ctxTeamUserPerformance, {
         type: 'bar',
         data: {
