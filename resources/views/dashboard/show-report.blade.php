@@ -65,15 +65,15 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    // Initialize Budget Utilization Chart with controller data
+    // Initialize Budget Utilization Chart
     var ctxBudgetUtilization = document.getElementById('budgetUtilizationChart').getContext('2d');
     var budgetUtilizationChart = new Chart(ctxBudgetUtilization, {
         type: 'line',
         data: {
-            labels: @json($budgetUtilization['labels']), // Use data from controller
+            labels: @json($budgetUtilization['labels']),
             datasets: [{
                 label: 'Budget Utilization',
-                data: @json($budgetUtilization['values']), // Use data from controller
+                data: @json($budgetUtilization['values']),
                 backgroundColor: 'rgba(54, 162, 235, 0.5)',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 borderWidth: 2,
@@ -91,53 +91,69 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Initialize Team User Performance Chart
     var ctxTeamUserPerformance = document.getElementById('teamUserPerformanceChart').getContext('2d');
+    var userPerformanceData = @json($userPerformance);
+
+    var labelsUser = userPerformanceData.userName;
+    var dataUser = userPerformanceData.values;
+
+    console.log(userPerformanceData);
+    console.log('Labels:', userPerformanceData.data[3]);
+    console.log('Data:', dataUser);
+
     var teamUserPerformanceChart = new Chart(ctxTeamUserPerformance, {
         type: 'bar',
         data: {
-            labels: @json($userPerformance['labels']), // Use data from controller
+            labels: labelsUser,
             datasets: [{
-                label: 'Time Spent (minutes)',
-                data: @json($userPerformance['values']), // Use data from controller
+                label: 'Time Spent (hours)',
+                data: dataUser,
                 backgroundColor: 'rgba(255, 159, 64, 0.5)',
                 borderColor: 'rgba(255, 159, 64, 1)',
-                borderWidth: 2,
+                borderWidth: 2
             }]
         },
         options: {
             responsive: true,
             scales: {
-                x: { beginAtZero: true },
-                y: { beginAtZero: true }
+                x: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'User Name'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Time Spent (minutes)'
+                    }
+                }
             }
         }
     });
 
     // Initialize Task Completion Doughnut Chart
-    console.log({
-    Completed: @json($completionData['Completed']),
-    InProgress: @json($completionData['In Progress']),
-    Pending: @json($completionData['Pending'])
-    });
     var ctxTaskCompletion = document.getElementById('taskCompletionChart').getContext('2d');
     var taskCompletionChart = new Chart(ctxTaskCompletion, {
         type: 'doughnut',
         data: {
-            labels: ['Completed', 'In Progress', 'Pending'], // Static labels for task statuses
+            labels: ['Completed', 'In Progress', 'Pending'],
             datasets: [{
                 label: 'Task Status',
                 data: [
-                @json($completionData['Completed']), // Use data from controller
-                @json($completionData['In Progress']), // Use data from controller
-                @json($completionData['Pending']) // Use data from controller
-            ],
+                    @json($completionData['Completed']),
+                    @json($completionData['In Progress']),
+                    @json($completionData['Pending'])
+                ],
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.5)', // Completed
-                    'rgba(54, 162, 235, 0.5)', // In Progress
-                    'rgba(255, 206, 86, 0.5)'  // Pending
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(54, 162, 235, 0.5)',
+                    'rgba(255, 206, 86, 0.5)'
                 ],
                 borderColor: [
-                    'rgba(255, 99, 132, 1)', 
-                    'rgba(54, 162, 235, 1)', 
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
                     'rgba(255, 206, 86, 1)'
                 ],
                 borderWidth: 2,
@@ -153,18 +169,18 @@ document.addEventListener('DOMContentLoaded', function () {
     var expenseDataChart = new Chart(ctxExpenseData, {
         type: 'doughnut',
         data: {
-            labels: @json($expenseData['labels']), // Use data from controller
+            labels: @json($expenseData['labels']),
             datasets: [{
                 label: 'Expenses',
-                data: @json($expenseData['values']), // Use data from controller
+                data: @json($expenseData['values']),
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.5)', 
-                    'rgba(255, 159, 64, 0.5)', 
+                    'rgba(255, 99, 132, 0.5)',
+                    'rgba(255, 159, 64, 0.5)',
                     'rgba(255, 205, 86, 0.5)'
                 ],
                 borderColor: [
-                    'rgba(255, 99, 132, 1)', 
-                    'rgba(255, 159, 64, 1)', 
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(255, 159, 64, 1)',
                     'rgba(255, 205, 86, 1)'
                 ],
                 borderWidth: 2,
@@ -175,5 +191,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
 </script>
 @endsection

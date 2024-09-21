@@ -15,7 +15,6 @@
                 </style>
             </head>
             <body>
-
                 <!-- Display projects for all roles -->
                 <h1>Projects</h1>
                 <table>
@@ -32,7 +31,6 @@
                         <xsl:apply-templates select="project"/>
                     </tbody>
                 </table>
-
             </body>
         </html>
     </xsl:template>

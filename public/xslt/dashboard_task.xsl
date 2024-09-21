@@ -15,8 +15,6 @@
                 </style>
             </head>
             <body>
-
-
                     <h1>Tasks</h1>
                     <table>
                         <thead>
@@ -34,7 +32,6 @@
                             <xsl:apply-templates select="task"/>
                         </tbody>
                     </table>
-
             </body>
         </html>
     </xsl:template>

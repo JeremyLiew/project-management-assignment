@@ -20,7 +20,7 @@ class TeamUserPerformanceStrategy implements MultiParameterStrategyInterface
                 $taskUserId = $task->user_id;
                 if (!$taskUserId) continue;
 
-                $timeSpentOnTask = $task->updated_at->diffInMinutes($task->created_at);
+                $timeSpentOnTask = $task->updated_at->diffInHours($task->created_at);
 
                 if (!isset($userPerformance[$taskUserId])) {
                     $userPerformance[$taskUserId] = [
@@ -40,15 +40,7 @@ class TeamUserPerformanceStrategy implements MultiParameterStrategyInterface
                 $timeSpent[] = $performance['timeSpent'];
             }
 
-            return [
-                'labels' => $userNames,
-                'values' => array_map(function ($name, $time) {
-                    return [
-                        'userName' => $name,
-                        'timeSpent' => $time,
-                    ];
-                }, $userNames, $timeSpent),
-            ];
+
         } else {
             // Admin user logic
             // Retrieve all tasks for the project and group by user
@@ -63,6 +55,8 @@ class TeamUserPerformanceStrategy implements MultiParameterStrategyInterface
                 $userId = $task->user_id;
                 $userName = $task->user->name;
 
+                $timeSpentOnTask = $task->updated_at->diffInHours($task->created_at);
+                
                 $userPerformance[$userId] = [
                     'userName' => $userName,
                     'timeSpent' => $task->time_spent,
@@ -76,16 +70,8 @@ class TeamUserPerformanceStrategy implements MultiParameterStrategyInterface
                 $userNames[] = $performance['userName'];
                 $timeSpent[] = $performance['timeSpent'];
             }
-
-            return [
-                'labels' => $userNames,
-                'values' => array_map(function ($name, $time) {
-                    return [
-                        'userName' => $name,
-                        'timeSpent' => $time,
-                    ];
-                }, $userNames, $timeSpent),
-            ];
+            
         }
+        return $userPerformance;
     }
 }
