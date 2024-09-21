@@ -61,7 +61,6 @@ class BudgetController extends Controller
                 $budget->expenses()->create([
                     'amount' => $expense['amount'],
                     'description' => $expense['description'],
-                    'expense_category_id' => 1, // Assuming a default or pre-selected category
                 ]);
             }
         }
