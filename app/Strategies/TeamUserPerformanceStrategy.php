@@ -19,7 +19,10 @@ class TeamUserPerformanceStrategy implements MultiParameterStrategyInterface
         if ($userId != 1 && $userId != 2) {  // Changed || to &&
             // Non-admin user logic
             
-            $tasks = Task::where('project_id', $projectId)->with('user')->get();
+            $tasks = Task::where('project_id', $projectId)
+             ->where('user_id', $userId) // Add this line to filter by user ID
+             ->with('user')
+             ->get();
 
             foreach ($tasks as $task) {
                 $taskUserId = $task->user_id;
