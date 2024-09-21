@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
         data: {
             labels: labelsUser,
             datasets: [{
-                label: 'Time Spent (minutes)',
+                label: 'Time Spent (hours)',
                 data: dataUser,
                 backgroundColor: 'rgba(255, 159, 64, 0.5)',
                 borderColor: 'rgba(255, 159, 64, 1)',
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Time Spent (minutes)'
+                        text: 'Time Spent (hours)'
                     }
                 }
             }

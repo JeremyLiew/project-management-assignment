@@ -90,47 +90,48 @@
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const projectSelect = document.getElementById('project_id');
-    const userSelect = document.getElementById('user_id');
+    document.addEventListener('DOMContentLoaded', function() {
+        const projectSelect = document.getElementById('project_id');
+        const userSelect = document.getElementById('user_id');
+        const userRole = "{{ $userRole }}";
+        const allowedRoles = @json($allowedRoles);
 
-    function fetchUsers(projectId, selectedUserId = null) {
-        if (!projectId) {
-            userSelect.innerHTML = '<option value="">Choose User</option>';
-            return;
+        function fetchUsers(projectId, selectedUserId = null) {
+            if (!projectId || !allowedRoles.includes(userRole)) {
+                return;
+            }
+
+            axios.get(`/dashboard/${projectId}/users`)
+                .then(response => {
+                    if (response.data.success) {
+                        let options = '<option value="">Choose User</option>';
+                        options += '<option value="1">Whole Team</option>';
+                        response.data.users.forEach(user => {
+                            const selected = selectedUserId && user.id == selectedUserId ? 'selected' : '';
+                            options += `<option value="${user.id}" ${selected}>${user.name}</option>`;
+                        });
+                        userSelect.innerHTML = options;
+                    } else {
+                        console.warn('Failed to fetch users:', response.data.message);
+                        userSelect.innerHTML = '<option value="">Choose User</option>';
+                    }
+                })
+                .catch(error => {
+                    console.warn('Error fetching users:', error);
+                    userSelect.innerHTML = '<option value="">Choose User</option>';
+                });
         }
 
-        axios.get(`/dashboard/${projectId}/users`)
-            .then(response => {
-                if (response.data.success) {
-                    let options = '<option value="">Choose User</option>';
-                    options += '<option value="1">Whole Team</option>';
-                    response.data.users.forEach(user => {
-                        const selected = selectedUserId && user.id == selectedUserId ? 'selected' : '';
-                        options += `<option value="${user.id}" ${selected}>${user.name}</option>`;
-                    });
-                    userSelect.innerHTML = options;
-                } else {
-                    alert(response.data.message || 'Failed to fetch users.');
-                    userSelect.innerHTML = '<option value="">Choose User</option>';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching users:', error);
-                alert('An error occurred while fetching users.');
-                userSelect.innerHTML = '<option value="">Choose User</option>';
-            });
-    }
+        projectSelect.addEventListener('change', function() {
+            const selectedProjectId = this.value;
+            if (allowedRoles.includes(userRole)) {
+                fetchUsers(selectedProjectId);
+            }
+        });
 
-    projectSelect.addEventListener('change', function() {
-        const selectedProjectId = this.value;
-        fetchUsers(selectedProjectId);
+        @if(old('project_id') && in_array($userRole, $allowedRoles))
+            fetchUsers("{{ old('project_id') }}", "{{ old('user_id') }}");
+        @endif
     });
-
-    @if(old('project_id'))
-        fetchUsers("{{ old('project_id') }}", "{{ old('user_id') }}");
-    @endif
-});
 </script>
-
 @endsection
