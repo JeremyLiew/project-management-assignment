@@ -34,7 +34,7 @@
                         <!-- Project Selector -->
                         <div class="col-md-12 mb-4">
                             <div class="card">
-                                <div class="card-header">Select Project</div>
+                                <div class="card-header">Project</div>
                                 @php
                                     $userRole = auth()->user()->role;
                                     $allowedRoles = ['admin', 'manager'];
@@ -48,7 +48,7 @@
                                         <div class="form-group mb-3">
                                             <label for="project_id">Select Project</label>
                                             <select name="project_id" id="project_id" class="form-control" required>
-                                                <option value="">Select a Project</option>
+                                                <option value="">Choose Project</option>
                                                 @foreach($projects as $project)
                                                     <option value="{{ $project->id }}">{{ $project->name }}</option>
                                                 @endforeach

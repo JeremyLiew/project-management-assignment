@@ -25,7 +25,7 @@ class TeamUserPerformanceStrategy implements MultiParameterStrategyInterface
                 $taskUserId = $task->user_id;
                 if (!$taskUserId) continue;
 
-                $timeSpentOnTask = $task->updated_at->diffInHours($task->created_at);  // Changed to minutes
+                $timeSpentOnTask = $task->updated_at->diffInHours($task->created_at);  // Changed to hours
 
                 if (!isset($userPerformance[$taskUserId])) {
                     $userPerformance[$taskUserId] = [

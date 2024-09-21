@@ -10,53 +10,57 @@
             <a href="{{ url()->previous() }}" class="btn btn-secondary mb-4">Back</a>
 
             <div class="row">
-                <!-- Budget Utilization Line Chart -->
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="card">
-                        <div class="card-header">Budget Utilization</div>
-                        <div class="card-body">
-                            <div class="chart-container">
-                                <canvas id="budgetUtilizationChart"></canvas>
-                            </div>
+            <!-- Budget Utilization Line Chart -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header text-center">
+                        <h5 class="m-0">Budget Utilization</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="budgetUtilizationChart"></canvas>
                         </div>
                     </div>
+                    <div class="card-footer text-muted text-center">
+                        Track how much of your budget has been utilized.
+                    </div>
                 </div>
+            </div>
 
-                <!-- Expenses Doughnut Chart -->
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="card">
-                        <div class="card-header">Project Expenses</div>
-                        <div class="card-body">
-                            <div class="chart-container">
-                                <canvas id="expenseDataChart"></canvas>
-                            </div>
+            <!-- Expenses Doughnut Chart -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header text-center">
+                        <h5 class="m-0">Project Expenses</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="expenseDataChart"></canvas>
                         </div>
                     </div>
+                    <div class="card-footer text-muted text-center">
+                        Visualize your project expenses distribution.
+                    </div>
                 </div>
+            </div>
 
-                <!-- Team User Performance Bar Chart -->
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="card">
-                        <div class="card-header">Team User Performance</div>
-                        <div class="card-body">
-                            <div class="chart-container">
-                                <canvas id="teamUserPerformanceChart"></canvas>
-                            </div>
+            <!-- Team User Performance Bar Chart -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header text-center">
+                        <h5 class="m-0">Team User Performance</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="teamUserPerformanceChart"></canvas>
                         </div>
                     </div>
+                    <div class="card-footer text-muted text-center">
+                        Monitor team performance on tasks.
+                    </div>
                 </div>
+            </div>
 
-                <!-- Task Completion Doughnut Chart -->
-                <div class="col-md-6 col-lg-3 mb-4">
-                    <div class="card">
-                        <div class="card-header">Team Task Completion</div>
-                        <div class="card-body">
-                            <div class="chart-container">
-                                <canvas id="taskCompletionChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -128,37 +132,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             }
-        }
-    });
-
-    // Initialize Task Completion Doughnut Chart
-    var ctxTaskCompletion = document.getElementById('taskCompletionChart').getContext('2d');
-    var taskCompletionChart = new Chart(ctxTaskCompletion, {
-        type: 'doughnut',
-        data: {
-            labels: ['Completed', 'In Progress', 'Pending'],
-            datasets: [{
-                label: 'Task Status',
-                data: [
-                    @json($completionData['Completed']),
-                    @json($completionData['In Progress']),
-                    @json($completionData['Pending'])
-                ],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.5)',
-                    'rgba(54, 162, 235, 0.5)',
-                    'rgba(255, 206, 86, 0.5)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)'
-                ],
-                borderWidth: 2,
-            }]
-        },
-        options: {
-            responsive: true,
         }
     });
 
