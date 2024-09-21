@@ -1,5 +1,7 @@
 <?php
 
+//Soo Yu Hung
+
 namespace App\Http\Requests\Project;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -15,7 +17,7 @@ class UpdateProjectRequest extends FormRequest {
 
     public function rules() {
         $user = auth()->user();
-        
+
         if ($user && ($user->role == 'admin' || $user->role == 'manager')) {
             return [
                 'name' => 'required|string|max:255',
