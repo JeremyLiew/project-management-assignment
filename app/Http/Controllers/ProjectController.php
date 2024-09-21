@@ -323,13 +323,15 @@ class ProjectController extends Controller {
                 'completed_at' => $completedAt,
             ]);
 
-            $project->users()->detach();
+            if(!(empty($request->members))){
+                $project->users()->detach();
 
-            $project->users()->sync([]);
+                $project->users()->sync([]);
 
-            $membersWithRoles = array_combine($request->members, $request->roles);
-            foreach ($membersWithRoles as $memberId => $role) {
-                $project->users()->attach($memberId, ['role' => $role]);
+                $membersWithRoles = array_combine($request->members, $request->roles);
+                foreach ($membersWithRoles as $memberId => $role) {
+                    $project->users()->attach($memberId, ['role' => $role]);
+                }
             }
 
             $projectLogger = new ProjectLogDecorator($project, $request);
@@ -338,7 +340,7 @@ class ProjectController extends Controller {
                 'description' => $project->description,
                 'budget_id' => $project->budget_id,
                 'status' => $project->status,
-                'members' => $membersWithRoles,
+                'members' => empty($request->members)?[]:$membersWithRoles,
             ]);
 
             return redirect()->route('projects.index')->with('success', 'Project updated successfully with a budget.');

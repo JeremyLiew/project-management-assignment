@@ -23,9 +23,9 @@ class UpdateProjectRequest extends FormRequest {
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'budget_id' => 'required|exists:budgets,id',
-                'members' => 'required|array',
+                'members' => 'nullable|array',
                 'members.*' => 'exists:users,id',
-                'roles' => 'required|array',
+                'roles' => 'nullable|array',
                 'roles.*' => 'in:Junior,Senior,Project Manager',
             ];
         } else {
