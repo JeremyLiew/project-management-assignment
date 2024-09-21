@@ -12,10 +12,6 @@ class TaskStrategy implements StrategyInterface
 {
     public function execute($tasks)
     {
-        // Ensure tasks are loaded with their related project and expense
-        if (!$tasks->first()->relationLoaded('project') || !$tasks->first()->relationLoaded('expense')) {
-            $tasks = Task::with(['project', 'expense'])->whereIn('id', $tasks->pluck('id'))->get();
-        }
 
         $taskXml = new DOMDocument('1.0', 'UTF-8');
         $tasksElement = $taskXml->createElement('tasks');
