@@ -1,5 +1,8 @@
 <?php
-
+/**
+ *
+ * @author Liew Wei Lun
+ */
 namespace App\Strategies;
 
 interface MultiParameterStrategyInterface

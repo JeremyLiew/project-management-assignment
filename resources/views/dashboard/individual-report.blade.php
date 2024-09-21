@@ -2,6 +2,8 @@
 
 @section('content')
 
+ <!-- @author Liew Wei Lun -->
+ 
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-12">
@@ -31,53 +33,74 @@
                 <!-- Individual Reports Section -->
                 <div class="tab-pane fade show active" id="individual-report" role="tabpanel" aria-labelledby="individual-report-tab">
                     <div class="row">
-                        <!-- Project Overload Chart -->
-                        <div class="col-md-6 col-lg-3 mb-4">
-                            <div class="card">
-                                <div class="card-header">Project Overload</div>
-                                <div class="card-body">
-                                    <div class="chart-container">
-                                        <canvas id="projectOverloadChart"></canvas>
-                                    </div>
+                    <!-- Project Overload Chart -->
+                    <div class="col-md-6 col-lg-6 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header text-center">
+                                <h5 class="m-0">Project Overload</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="projectOverloadChart"></canvas>
                                 </div>
                             </div>
+                            <div class="card-footer text-muted text-center">
+                                Visualize project overload metrics.
+                            </div>
                         </div>
+                    </div>
 
-                        <!-- Task Overload Chart -->
-                        <div class="col-md-6 col-lg-3 mb-4">
-                            <div class="card">
-                                <div class="card-header">Task Overload</div>
-                                <div class="card-body">
-                                    <div class="chart-container">
-                                        <canvas id="taskOverloadChart"></canvas>
-                                    </div>
+                    <!-- Task Overload Chart -->
+                    <div class="col-md-6 col-lg-6 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header text-center">
+                                <h5 class="m-0">Task Overload</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="taskOverloadChart"></canvas>
                                 </div>
                             </div>
+                            <div class="card-footer text-muted text-center">
+                                Analyze task overload across the individual.
+                            </div>
                         </div>
+                    </div>
 
-                        <!-- Budget Utilization Report -->
-                        <div class="col-md-6 col-lg-3 mb-4">
-                            <div class="card">
-                                <div class="card-header">Budget Utilization Report</div>
-                                <div class="card-body">
-                                    <div class="chart-container">
-                                        <canvas id="budgetUtilizationChart"></canvas>
-                                    </div>
+                    <!-- Budget Utilization Report -->
+                    <div class="col-md-6 col-lg-6 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header text-center">
+                                <h5 class="m-0">Budget Utilization Report</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="budgetUtilizationChart"></canvas>
                                 </div>
                             </div>
+                            <div class="card-footer text-muted text-center">
+                                Track your budget utilization effectively.
+                            </div>
                         </div>
+                    </div>
 
-                        <!-- User Performance Report -->
-                        <div class="col-md-6 col-lg-3 mb-4">
-                            <div class="card">
-                                <div class="card-header">Individual User Performance Report</div>
-                                <div class="card-body">
-                                    <div class="chart-container">
-                                        <canvas id="userPerformanceChart"></canvas>
-                                    </div>
+                    <!-- User Performance Report -->
+                    <div class="col-md-6 col-lg-6 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header text-center">
+                                <h5 class="m-0">Individual User Performance Report</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container">
+                                    <canvas id="userPerformanceChart"></canvas>
                                 </div>
                             </div>
+                            <div class="card-footer text-muted text-center">
+                                Review individual user performance metrics.
+                            </div>
                         </div>
+                    </div>
+
 
                     </div>
                 </div>

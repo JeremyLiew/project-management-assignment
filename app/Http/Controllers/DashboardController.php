@@ -1,5 +1,10 @@
 <?php
 
+/**
+ *
+ * @author Liew Wei Lun
+ */
+
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Log; 
@@ -11,7 +16,6 @@ use App\Models\Budget;
 use App\Services\DashboardService;
 use App\Strategies\BudgetUtilizationStrategy;
 use App\Strategies\CompletedTaskDataStrategy;
-use App\Strategies\TeamTaskCompletionStrategy;
 use App\Strategies\TeamUserPerformanceStrategy;
 use App\Strategies\TeamBudgetUtilizationStrategy;
 use App\Strategies\ProjectStrategy;
@@ -101,7 +105,7 @@ class DashboardController extends Controller
         $dashboardService = new DashboardService();
         $dashboardService->setStrategy(new InProgressTasksStrategy());
 
-        $inProgressTasks = Task::where('status', 'in-progress')->with('expense', 'project')->get();
+        $inProgressTasks = Task::where('status', 'in progress')->with('expense', 'project')->get();
         $inProgressTasksXmlDoc = $dashboardService->executeStrategy($inProgressTasks);
 
         $inProgressTasksXsl = new DOMDocument();
@@ -228,19 +232,17 @@ class DashboardController extends Controller
         // Instantiate strategies
         $budgetUtilizationStrategy = new TeamBudgetUtilizationStrategy();
         $userPerformanceStrategy = new TeamUserPerformanceStrategy();
-        $taskCompletionStrategy = new TeamTaskCompletionStrategy();
     
         // Execute strategies
         $budgetUtilization = $budgetUtilizationStrategy->execute($projectId, $userId);
         $userPerformance = $userPerformanceStrategy->execute($projectId, $userId);
-        $taskCompletionData = $taskCompletionStrategy->execute($projectId, $userId);
+
 
         // Return a view with the data
         return view('dashboard.show-report', [
             'budgetUtilization' => $budgetUtilization,
             'expenseData' => $expenseData,
             'userPerformance' => $userPerformance,
-            'completionData' => $taskCompletionData,
             'project' => $project,
             'user' => User::find($userId),
         ]);
