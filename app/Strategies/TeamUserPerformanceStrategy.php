@@ -20,7 +20,7 @@ class TeamUserPerformanceStrategy implements MultiParameterStrategyInterface
                 $taskUserId = $task->user_id;
                 if (!$taskUserId) continue;
 
-                $timeSpentOnTask = $task->updated_at->diffInMinutes($task->created_at);  // Changed to minutes
+                $timeSpentOnTask = $task->updated_at->diffInHours($task->created_at);  // Changed to minutes
 
                 if (!isset($userPerformance[$taskUserId])) {
                     $userPerformance[$taskUserId] = [
@@ -34,7 +34,7 @@ class TeamUserPerformanceStrategy implements MultiParameterStrategyInterface
         } else {
             // Admin user logic
             $tasks = Task::where('project_id', $projectId)
-                ->select('user_id', DB::raw('SUM(TIMESTAMPDIFF(MINUTE, created_at, updated_at)) as time_spent'))
+                ->select('user_id', DB::raw('SUM(TIMESTAMPDIFF(SECOND, created_at, updated_at) / 3600) as time_spent'))
                 ->groupBy('user_id')
                 ->with('user')
                 ->get();
