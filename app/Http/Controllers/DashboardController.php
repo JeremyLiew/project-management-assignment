@@ -60,7 +60,7 @@ class DashboardController extends Controller
         $projectXMLOutput = $projectProcessor->transformToXml($projectXml);
 
         // Task XML generation
-        $tasks = $projects->flatMap->tasks;
+        $tasks = $projects->flatMap->tasks->where('user_id', $user->id);
         $dashboardService->setStrategy(new TaskStrategy());
         $taskXml = $dashboardService->executeStrategy($tasks);
 
@@ -180,9 +180,12 @@ class DashboardController extends Controller
     
         // Check if the authenticated user is a manager or admin
         if ($user->role === 'manager' || $user->role === 'admin') {
-            $users = User::get();
-
+            // Get all users with the role 'user'
+            $users = User::where('role', 'user')->get();
+    
+            // Retrieve all projects that are associated with users who have the 'user' role
             $projects = Project::get();
+
         } else {
             // For other roles, get only the user's own projects
             $projects = $user->projects;
@@ -196,8 +199,10 @@ class DashboardController extends Controller
     
     public function getProjectUsers($projectId)
     {
+        // Find the project by the given projectId
         $project = Project::find($projectId);
-    
+        
+        // Check if the project exists
         if (!$project) {
             return response()->json([
                 'success' => false,
@@ -205,8 +210,10 @@ class DashboardController extends Controller
             ], 404);
         }
     
-        $users = $project->users;
-    
+        // Filter users associated with this project and where their role is 'user'
+        $users = $project->users()->wherePivot('role', '!=', 'Project Manager')->get();
+        
+        // Return the filtered list of users in the response
         return response()->json([
             'success' => true,
             'users' => $users

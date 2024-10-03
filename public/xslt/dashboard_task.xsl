@@ -50,7 +50,7 @@
                             <xsl:value-of select="status"/>
                         </span>
                     </xsl:when>
-                    <xsl:when test="status = 'Pending'">
+                    <xsl:when test="status = 'pending'">
                         <span class="badge badge-warning">
                             <xsl:value-of select="status"/>
                         </span>

@@ -16,14 +16,14 @@ class CompletedTaskDataStrategy implements StrategyInterface
         $completedTaskData = [];
 
         foreach ($tasks as $task) {
-            if ($task->status === 'Completed') {
+
                 $hoursSpent = $task->created_at->diffInHours($task->updated_at);
 
                 $completedTaskData[] = [
                     'taskName' => $task->name,
                     'hoursSpent' => $hoursSpent,
                 ];
-            }
+
         }
 
         return $completedTaskData;

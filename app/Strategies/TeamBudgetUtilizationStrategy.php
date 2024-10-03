@@ -8,6 +8,7 @@ namespace App\Strategies;
 use App\Models\Project;
 use App\Models\Budget;
 use App\Models\Expense;
+use App\Models\Task;
 use App\Models\ProjectUserMapping; // Import the model
 
 class TeamBudgetUtilizationStrategy implements MultiParameterStrategyInterface
@@ -20,7 +21,9 @@ class TeamBudgetUtilizationStrategy implements MultiParameterStrategyInterface
             $budget = Budget::find($project->budget_id);
             $expenses = Expense::where('budget_id', $project->budget_id)->get();
 
-            $totalExpenses = $expenses->sum('amount');
+            $totalExpenses = Task::where('project_id', $project->id)
+            ->join('expenses', 'tasks.expense_id', '=', 'expenses.id')
+            ->sum('expenses.amount');
 
             return [
                 'labels' => ['Project Budget', 'Project Expenses'],

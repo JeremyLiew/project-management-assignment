@@ -200,6 +200,8 @@
         var ctxBudget = document.getElementById('budgetUtilizationChart').getContext('2d');
         var budgetUtilizationData = @json($budgetUtilization);
 
+        
+
         var labels = budgetUtilizationData.map(data => data.projectName);
         var data = budgetUtilizationData.map(data => data.utilization);
 
@@ -232,6 +234,8 @@
         // Individual User Performance Report (Bar Chart)
         var ctxUser = document.getElementById('userPerformanceChart').getContext('2d');
         var userPerformanceData = @json($completedTaskData);
+
+        console.log(userPerformanceData);
 
         var labelsUser = userPerformanceData.map(data => data.taskName);
         var dataUser = userPerformanceData.map(data => data.hoursSpent);
