@@ -70,11 +70,7 @@
                     <label for="expense_id">Related Expense (Optional)</label>
                     <select name="expense_id" id="expense_id" class="form-control">
                         <option value="">None</option>
-                        @foreach($expenses as $expense)
-                            <option value="{{ $expense->id }}" {{ old('expense_id') == $expense->id ? 'selected' : '' }}>
-                                {{ $expense->description }}
-                            </option>
-                        @endforeach
+                        <!-- Expenses will be loaded dynamically based on selected project -->
                     </select>
                     @error('expense_id')
                         <div class="text-danger">{{ $message }}</div>
@@ -100,6 +96,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const projectSelect = document.getElementById('project_id');
     const userSelect = document.getElementById('user_id');
+    const expenseSelect = document.getElementById('expense_id');
     const dueDateInput = document.getElementById('due_date');
 
     const today = new Date().toISOString().split('T')[0];
@@ -132,13 +129,42 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    function fetchExpenses(projectId, selectedExpenseId = null) {
+        if (!projectId) {
+            expenseSelect.innerHTML = '<option value="">None</option>';
+            return;
+        }
+
+        axios.get(`/projects/${projectId}/expenses`)
+            .then(response => {
+                if (response.data.success) {
+                    let options = '<option value="">None</option>';
+                    response.data.expenses.forEach(expense => {
+                        const selected = selectedExpenseId && expense.id == selectedExpenseId ? 'selected' : '';
+                        options += `<option value="${expense.id}" ${selected}>${expense.description}</option>`;
+                    });
+                    expenseSelect.innerHTML = options;
+                } else {
+                    alert(response.data.message || 'Failed to fetch expenses.');
+                    expenseSelect.innerHTML = '<option value="">None</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching expenses:', error);
+                alert('An error occurred while fetching expenses.');
+                expenseSelect.innerHTML = '<option value="">None</option>';
+            });
+    }
+
     projectSelect.addEventListener('change', function() {
         const selectedProjectId = this.value;
         fetchUsers(selectedProjectId);
+        fetchExpenses(selectedProjectId);
     });
 
     @if(old('project_id'))
         fetchUsers("{{ old('project_id') }}", "{{ old('user_id') }}");
+        fetchExpenses("{{ old('project_id') }}", "{{ old('expense_id') }}");
     @endif
 });
 

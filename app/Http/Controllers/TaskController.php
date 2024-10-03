@@ -178,4 +178,24 @@ class TaskController extends Controller
             'users' => $users
         ]);
     }
+
+    public function getProjectExpenses($projectId)
+    {
+        $project = Project::find($projectId);
+
+        if (!$project) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Project not found'
+            ], 404);
+        }
+
+        // Assuming the project has a budget, and each budget has related expenses
+        $expenses = $project->budget ? $project->budget->expenses : [];
+
+        return response()->json([
+            'success' => true,
+            'expenses' => $expenses
+        ]);
+    }
 }

@@ -27,6 +27,7 @@ Route::resource('tasks', TaskController::class);
 Route::resource('projects', ProjectController::class);
 
 Route::get('/projects/{project}/users', [TaskController::class, 'getProjectUsers']);
+Route::get('/projects/{projectId}/expenses', [TaskController::class, 'getProjectExpenses']);
 
 Route::resource('budgets', BudgetController::class);
 
@@ -74,6 +75,5 @@ Route::controller(DashboardController::class)->group(function () {
     Route::get('/dashboard-individual_report', 'individual_report')->name('individual_report');
     Route::get('/dashboard-team_report', 'team_report')->name('team_report');
     Route::post('/dashboard/generate-report', 'generateReport')->name('report.generate');
-    Route::get('/dashboard/{project}/users',  'getProjectUsers');
+    Route::get('/dashboard/{project}/users', 'getProjectUsers');
 });
-
