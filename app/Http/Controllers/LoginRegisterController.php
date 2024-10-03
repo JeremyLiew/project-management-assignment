@@ -115,12 +115,12 @@ class LoginRegisterController extends Controller
     public function logout(Request $request): RedirectResponse
     {
         $authLogger = new AuthLogDecorator($request);
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
         $authLogger->logAction('Logout Successful', [
             'user_id' => auth()->id(),
         ]);
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
         return redirect()->route('login')
             ->withSuccess('You have logged out successfully!');
     }
