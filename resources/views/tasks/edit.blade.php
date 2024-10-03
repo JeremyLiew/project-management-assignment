@@ -104,6 +104,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const projectSelect = document.getElementById('project_id');
     const userSelect = document.getElementById('user_id');
+    const expenseSelect = document.getElementById('expense_id');
     const dueDateInput = document.getElementById('due_date');
 
     const today = new Date().toISOString().split('T')[0];
@@ -136,8 +137,38 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
+    function fetchExpenses(projectId, selectedExpenseId = null) {
+        if (!projectId) {
+            expenseSelect.innerHTML = '<option value="">None</option>';
+            return;
+        }
+
+        axios.get(`/projects/${projectId}/expenses`)
+            .then(response => {
+                if (response.data.success) {
+                    let options = '<option value="">None</option>';
+                    response.data.expenses.forEach(expense => {
+                        const selected = selectedExpenseId && expense.id == selectedExpenseId ? 'selected' : '';
+                        options += `<option value="${expense.id}" ${selected}>${expense.description}</option>`;
+                    });
+                    expenseSelect.innerHTML = options;
+                } else {
+                    alert(response.data.message || 'Failed to fetch expenses.');
+                    expenseSelect.innerHTML = '<option value="">None</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching expenses:', error);
+                alert('An error occurred while fetching expenses.');
+                expenseSelect.innerHTML = '<option value="">None</option>';
+            });
+    }
+
     const selectedProjectId = "{{ old('project_id', $task->project_id) }}";
     const selectedUserId = "{{ old('user_id', $task->user_id) }}";
+    const selectedExpenseId = "{{ old('expense_id', $task->expense_id) }}";
+
     fetchUsers(selectedProjectId, selectedUserId);
+    fetchExpenses(selectedProjectId, selectedExpenseId);
 });
 </script>
